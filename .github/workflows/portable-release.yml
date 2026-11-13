@@ -194,10 +194,13 @@ jobs:
           # and uses its profiles to sync tags; if that copy still pointed at
           # the upstream update repos, the build tag got pruned and setup died
           # with "Setup version ... is no longer available".
-          # keep_releases stays unset so every tag is kept.
           $lines = @(
             'name: "Monster"'
             'icon: "icons/icon.png"'
+            # Only the build tag's history is bundled. Without this the archive
+            # carried 1000+ inherited tags (~2.6 GB) and exceeded GitHub's
+            # 2 GiB Release asset limit.
+            'keep_releases: 1'
             'profiles:'
             '  - name: "Portable"'
             ('    git_url: "' + $env:APP_REPO_URL + '"')
@@ -276,7 +279,16 @@ jobs:
           $first = Join-Path release_assets $files[0].Name
           $hash = (Get-FileHash -LiteralPath $first -Algorithm SHA256).Hash
           $sizeMB = [math]::Round($files[0].Length / 1MB, 1)
+          $largest = ($files | Measure-Object -Property Length -Maximum).Maximum
+          # A GitHub Release asset must be strictly smaller than 2 GiB
+          # (2147483648 bytes). Uploading a larger file fails the whole job
+          # even though the Actions artifact uploads fine, so skip the release
+          # step instead of marking an otherwise successful build as failed.
+          $releaseLimit = 2147483648
+          $releaseReady = if ($largest -lt $releaseLimit) { 'true' } else { 'false' }
           "sha256=$hash" >> $env:GITHUB_OUTPUT
+          "release_ready=$releaseReady" >> $env:GITHUB_OUTPUT
+          "largest_bytes=$largest" >> $env:GITHUB_OUTPUT
           $summary = @(
             '## Monster portable package'
             ''
@@ -288,6 +300,14 @@ jobs:
             'Extract and run Monster/Monster.cmd. Python and all dependencies are bundled; no installer and no online download.'
             'The app ships ok_templates/ images with long file names; extract with 7-Zip / WinRAR into a short folder (e.g. C:\Monster) if Windows Explorer reports a long-path error.'
           )
+          if ($releaseReady -eq 'false') {
+            $summary += @(
+              ''
+              "GitHub Release upload skipped: the archive is $([math]::Round($largest / 1GB, 2)) GiB, above the 2 GiB per-asset limit."
+              'Download the complete archive from this run''s Actions artifact (Monster-portable-<version>).'
+              'Re-run with package_format=7z for a smaller archive, or split it into parts below 2 GiB.'
+            )
+          }
           Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $summary
 
       - name: Upload portable archive
@@ -298,8 +318,17 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Explain skipped GitHub release
+        if: ${{ inputs.publish_release && steps.collect.outputs.release_ready != 'true' }}
+        env:
+          VERSION_NUMBER: ${{ steps.version.outputs.number }}
+        run: |
+          Write-Host "::warning::Portable archive exceeds GitHub's 2 GiB Release asset limit; only the Actions artifact was published."
+          Write-Host "Download the full archive from this run's artifact: Monster-portable-$env:VERSION_NUMBER (retention: 30 days)."
+          Write-Host 'To publish to Releases, re-run with package_format=7z or split the archive into parts below 2 GiB.'
+
       - name: Publish GitHub release
-        if: inputs.publish_release
+        if: ${{ inputs.publish_release && steps.collect.outputs.release_ready == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
