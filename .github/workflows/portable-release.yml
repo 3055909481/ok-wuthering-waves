@@ -9,6 +9,9 @@
 #
 # pyappify-action always emits a launcher-only "<App>-win32.zip" and a sha256
 # file next to the portable archive, so the collect step filters those out.
+# Because package_zip mode ships Monster.cmd instead of that Tauri updater,
+# this workflow compiles a tiny icon-only Monster.exe wrapper and embeds it in
+# the archive next to the .cmd. It has no update or network logic of its own.
 
 name: Monster Portable Release
 run-name: Monster portable · ${{ inputs.version || format('auto run {0}', github.run_number) }}
@@ -215,6 +218,33 @@ jobs:
           [System.IO.File]::WriteAllLines($target, $lines, (New-Object System.Text.UTF8Encoding($false)))
           Get-Content $target
 
+      # package_zip mode deliberately ships Monster.cmd instead of PyAppify's
+      # Tauri launcher: a portable build has no online updater. A .cmd has no
+      # icon and cannot be pinned nicely, so compile a tiny Win32 GUI wrapper
+      # that only invokes Monster.cmd (all update / environment logic stays in
+      # PyAppify's script). Compile before packaging: it only needs tracked
+      # assets, so a compiler problem fails fast instead of after a 20 min build.
+      - name: Build lightweight Monster.exe launcher
+        run: |
+          $compiler = @(
+            (Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe')
+            (Join-Path $env:WINDIR 'Microsoft.NET/Framework/v4.0.30319/csc.exe')
+          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $compiler) { throw 'The .NET Framework C# compiler is not available on this runner.' }
+          $source = Join-Path (Get-Location) '.github/scripts/MonsterLauncher.cs'
+          $manifest = Join-Path (Get-Location) '.github/scripts/MonsterLauncher.manifest.xml'
+          $icon = Join-Path (Get-Location) 'icons/launcher.ico'
+          foreach ($asset in @($source, $manifest, $icon)) {
+            if (-not (Test-Path $asset)) { throw "Launcher asset missing: $asset" }
+          }
+          $outDir = Join-Path (Get-Location) 'launcher'
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+          $out = Join-Path $outDir 'Monster.exe'
+          & $compiler /nologo /target:winexe /optimize+ "/out:$out" "/win32icon:$icon" "/win32manifest:$manifest" $source
+          if ($LASTEXITCODE -ne 0) { throw "Compiling Monster.exe failed (exit $LASTEXITCODE)." }
+          if (-not (Test-Path $out)) { throw 'Compiler reported success but Monster.exe is missing.' }
+          Write-Host ("Built {0} ({1} bytes)" -f $out, (Get-Item -LiteralPath $out).Length)
+
       - name: Build portable archive (no installers, no online setup)
         id: package
         uses: ok-oldking/pyappify-action@69bf7ae364e8c7f0606f34df86d432168a46f4bf
@@ -225,6 +255,39 @@ jobs:
           package_zip_format: ${{ inputs.package_format }}
           add_version_name: true
           app_version: ${{ steps.version.outputs.tag }}
+
+      - name: Embed Monster.exe in the portable archive
+        env:
+          PACKAGE_FORMAT: ${{ inputs.package_format }}
+        run: |
+          $seven = (Get-Command 7z -ErrorAction SilentlyContinue).Source
+          if (-not $seven) {
+            $fallback = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+            if (Test-Path $fallback) { $seven = $fallback }
+          }
+          if (-not $seven) { throw '7-Zip is not available on this runner.' }
+          $archive = @(Get-ChildItem -Path pyappify_dist -Filter "Monster-win32-Portable-*.$env:PACKAGE_FORMAT" -File)
+          if ($archive.Count -ne 1) { throw "Expected one portable archive, found $($archive.Count)." }
+          $exe = Join-Path (Get-Location) 'launcher/Monster.exe'
+          if (-not (Test-Path $exe)) { throw 'Compiled Monster.exe is missing.' }
+
+          # 7z stores whatever relative path it is given, so stage the exe at
+          # Monster/Monster.exe to match Monster/Monster.cmd inside the archive.
+          $stage = Join-Path (Get-Location) 'launcher_stage/Monster'
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          Copy-Item -LiteralPath $exe -Destination (Join-Path $stage 'Monster.exe') -Force
+          $root = Join-Path (Get-Location) 'launcher_stage'
+          $target = $archive[0].FullName
+          Push-Location $root
+          try {
+            & $seven a "-t$env:PACKAGE_FORMAT" -y $target 'Monster/Monster.exe'
+            if ($LASTEXITCODE -ne 0) { throw "Adding Monster.exe to the archive failed (exit $LASTEXITCODE)." }
+          } finally { Pop-Location }
+          $listing = (& $seven l $target | Out-String)
+          if ($listing -notmatch 'Monster\\Monster\.exe' -or $listing -notmatch 'Monster\\Monster\.cmd') {
+            throw 'The archive must contain both Monster.exe and Monster.cmd.'
+          }
+          Write-Host "Embedded Monster.exe next to Monster.cmd in $($archive[0].Name)."
 
       # Cheap post-mortem helper: shows which tags libgit2 kept in the bare
       # repository it cloned, useful when PyAppify rejects a setup version.
@@ -296,8 +359,9 @@ jobs:
             "- SHA256: $hash"
             "- Version tag: $env:VERSION_TAG"
             ''
-            'Only the portable archive is published; the launcher-only zip, hash file and any installer are discarded.'
-            'Extract (7z needs 7-Zip or Windows 11 23H2+) and run Monster/Monster.cmd. Python and all dependencies are bundled; no installer and no online download.'
+            'Only the portable archive is published; PyAppify''s launcher-only zip, hash file and any installer are discarded.'
+            'Extract (7z needs 7-Zip or Windows 11 23H2+) and double-click Monster/Monster.exe; Monster/Monster.cmd remains available for command-line arguments.'
+            'Monster.exe is only an icon + UAC wrapper around Monster.cmd: no updater, no installer, no online download. Python and all dependencies are bundled.'
             'The app ships ok_templates/ images with long file names; extract with 7-Zip / WinRAR into a short folder (e.g. C:\Monster) if Windows Explorer reports a long-path error.'
           )
           if ($releaseReady -eq 'false') {
@@ -423,8 +487,9 @@ jobs:
           body: |
             ### Monster 便携版
 
-            仅提供便携压缩包，解压后运行 `Monster/Monster.cmd` 即可启动。
+            仅提供便携压缩包，解压后双击 `Monster/Monster.exe` 即可启动；需要命令行参数时可运行 `Monster/Monster.cmd`。
 
+            - `Monster.exe` 只是带图标和管理员权限清单的轻量启动器，直接调用同目录的 `Monster.cmd`，不含在线更新、安装或联网逻辑
             - 默认 7z 格式，可用 7-Zip 或 Windows 11 23H2+ 解压
             - 若资产为 `.7z.001`、`.7z.002` 等分卷：请下载全部分卷放在同一目录，用 7-Zip 打开第一个（`.001`）解压即可，无需手动合并
             - 不含安装程序，不含在线安装包
