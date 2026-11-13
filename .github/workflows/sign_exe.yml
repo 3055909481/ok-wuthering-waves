@@ -29,7 +29,7 @@ jobs:
           cd src-win-launcher
           msbuild ok-launcher.sln /p:Configuration=Release
           cd ..
-          cp src-win-launcher/x64/Release/ok-ww.exe .
+          cp src-win-launcher/x64/Release/Monster.exe .
 
       - name: upload-unsigned-artifact
         id: upload-unsigned-artifact
@@ -37,7 +37,7 @@ jobs:
         with:
           name: to-sign
           path: |
-            ok-ww.exe
+            Monster.exe
 
       - name: sign OK-EXE
         uses: signpath/github-action-submit-signing-request@v1.1
@@ -55,4 +55,4 @@ jobs:
         id: upload-signed-artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ok-ww.exe
+          path: Monster.exe
