@@ -189,11 +189,12 @@ jobs:
         env:
           APP_REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
         run: |
-          # Point the packaged app at THIS repository instead of the upstream
-          # update repos, so the archive contains the Monster rename and stays
-          # independent of anyone else's update channel. keep_releases is left
-          # unset on purpose: with a limit PyAppify only fetches the newest
-          # tags and could miss the tag requested by app_version.
+          # Keep this identical to the committed pyappify.yml. At the end of
+          # setup PyAppify reloads the CHECKED-OUT repository's pyappify.yml
+          # and uses its profiles to sync tags; if that copy still pointed at
+          # the upstream update repos, the build tag got pruned and setup died
+          # with "Setup version ... is no longer available".
+          # keep_releases stays unset so every tag is kept.
           $lines = @(
             'name: "Monster"'
             'icon: "icons/icon.png"'
@@ -232,6 +233,8 @@ jobs:
           $repo = Join-Path (Get-Location) 'pyappify_dist/Monster/data/apps/Monster/repo'
           if (Test-Path $repo) {
             try {
+              $remoteUrl = (& git "--git-dir=$repo" remote get-url origin 2>$null | Out-String).Trim()
+              Write-Host "Packaged repo origin: $remoteUrl"
               $all = (& git "--git-dir=$repo" tag -l 2>$null | Out-String).Trim()
               $list = @($all -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ })
               Write-Host "Packaged repo tag count: $($list.Count)"
