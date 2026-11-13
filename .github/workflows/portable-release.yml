@@ -1,0 +1,212 @@
+# Manually triggered, portable-archive-only release for Monster.
+#
+# Compared with build.yml this workflow deliberately drops:
+#   * repository synchronisation (CNB / upstream update repos),
+#   * exe signing (SignPath),
+#   * NSIS installers and the online installer,
+#   * MirrorChyan / release-note distribution.
+# The only published artifact is a self-contained portable archive.
+#
+# pyappify-action always emits a launcher-only "<App>-win32.zip" and a sha256
+# file next to the portable archive, so the collect step filters those out.
+
+name: Monster Portable Release
+run-name: Monster portable · ${{ inputs.version || format('v0.0.{0}', github.run_number) }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag, e.g. v3.8.1 or v3.8.1-beta.1. Leave empty to auto-generate v0.0.<run number>. The tag is created on the current commit because PyAppify packages a tagged revision.'
+        required: false
+        default: ''
+        type: string
+      package_format:
+        description: 'Archive format. zip opens everywhere; 7z is smaller but needs 7-Zip or Windows 11 23H2+.'
+        required: true
+        default: 'zip'
+        type: choice
+        options:
+          - zip
+          - 7z
+      publish_release:
+        description: 'Also create a GitHub Release with the archive. When off, only the Actions artifact is uploaded.'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monster-portable-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build portable archive
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Configure runner
+        run: |
+          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Resolve version tag
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          $tag = "$env:INPUT_VERSION".Trim()
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            $tag = "v0.0.$env:RUN_NUMBER"
+          }
+          # Must match PyAppify's version-tag pattern: v?X.Y.Z[-(alpha|beta|rc)[.N]]
+          if ($tag -notmatch '^v?\d+\.\d+\.\d+(?:[-.](?:alpha|beta|rc)(?:\.\d+)?)?$') {
+            throw "Version '$tag' is not a valid PyAppify version tag (use v1.2.3 or v1.2.3-beta.1)."
+          }
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "number=$($tag -replace '^v', '')" >> $env:GITHUB_OUTPUT
+          Write-Host "Packaging version tag: $tag"
+
+      - name: Create version tag on the current commit
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git fetch --tags --force
+          $existing = (& git tag -l "$env:TAG").Trim()
+          if ($existing -eq $env:TAG) {
+            $tagged = (& git rev-parse "$env:TAG^{commit}").Trim()
+            $head = (& git rev-parse HEAD).Trim()
+            if ($tagged -ne $head) {
+              throw "Tag $env:TAG already exists on commit $tagged, not on HEAD $head. Pick another version."
+            }
+            Write-Host "Reusing existing tag $env:TAG on HEAD."
+          } else {
+            & git tag -a "$env:TAG" -m "Monster portable release $env:TAG"
+            if ($LASTEXITCODE -ne 0) { throw "git tag failed." }
+            & git push origin "refs/tags/$env:TAG"
+            if ($LASTEXITCODE -ne 0) { throw "git push tag failed." }
+            Write-Host "Created and pushed tag $env:TAG."
+          }
+
+      - name: Write portable-only PyAppify config
+        env:
+          APP_REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        run: |
+          # Point the packaged app at THIS repository instead of the upstream
+          # update repos, so the archive contains the Monster rename and stays
+          # independent of anyone else's update channel. keep_releases is left
+          # unset on purpose: with a limit PyAppify only fetches the newest
+          # tags and could miss the tag requested by app_version.
+          $lines = @(
+            'name: "Monster"'
+            'icon: "icons/icon.png"'
+            'profiles:'
+            '  - name: "Portable"'
+            ('    git_url: "' + $env:APP_REPO_URL + '"')
+            '    admin: true'
+            '    main_script: "main.py"'
+            '    requires_python: "3.12"'
+            '    requirements: "requirements.txt"'
+            '    use_pythonw: true'
+            '    pip_args: "--no-deps"'
+          )
+          $target = Join-Path (Get-Location) 'pyappify.yml'
+          [System.IO.File]::WriteAllLines($target, $lines, (New-Object System.Text.UTF8Encoding($false)))
+          Get-Content $target
+
+      - name: Build portable archive (no installers, no online setup)
+        id: package
+        uses: ok-oldking/pyappify-action@69bf7ae364e8c7f0606f34df86d432168a46f4bf
+        with:
+          version: v1.2.7
+          build_setup: false
+          package_zip: true
+          package_zip_format: ${{ inputs.package_format }}
+          add_version_name: true
+          app_version: ${{ steps.version.outputs.tag }}
+
+      - name: Collect portable archives only
+        id: collect
+        env:
+          PACKAGE_FORMAT: ${{ inputs.package_format }}
+          VERSION_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          New-Item -ItemType Directory -Path release_assets -Force | Out-Null
+          $pattern = "Monster-win32-Portable-*.$env:PACKAGE_FORMAT"
+          $files = @(Get-ChildItem -Path pyappify_dist -Filter $pattern -File)
+          if ($files.Count -eq 0) {
+            Write-Host 'pyappify_dist contents:'
+            Get-ChildItem -Path pyappify_dist -Recurse -File | ForEach-Object { Write-Host $_.FullName }
+            throw "No portable archive matching '$pattern' was produced."
+          }
+          foreach ($file in $files) {
+            Copy-Item -LiteralPath $file.FullName -Destination release_assets -Force
+          }
+
+          # Enforce the "archive only" contract: no exe, no setup/installer.
+          $unexpected = @(Get-ChildItem -Path release_assets -File | Where-Object {
+            $_.Extension -notin @('.zip', '.7z') -or $_.Name -match '(?i)setup|installer'
+          })
+          if ($unexpected.Count -gt 0) {
+            throw "Unexpected non-portable artifacts: $($unexpected.Name -join ', ')"
+          }
+
+          $first = Join-Path release_assets $files[0].Name
+          $hash = (Get-FileHash -LiteralPath $first -Algorithm SHA256).Hash
+          $sizeMB = [math]::Round($files[0].Length / 1MB, 1)
+          "sha256=$hash" >> $env:GITHUB_OUTPUT
+          $summary = @(
+            '## Monster portable package'
+            ''
+            "- Archive: $($files[0].Name) ($sizeMB MB)"
+            "- SHA256: $hash"
+            "- Version tag: $env:VERSION_TAG"
+            ''
+            'Only the portable archive is published; the launcher-only zip, hash file and any installer are discarded.'
+            'Extract and run Monster/Monster.cmd. Python and all dependencies are bundled; no installer and no online download.'
+          )
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $summary
+
+      - name: Upload portable archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: Monster-portable-${{ steps.version.outputs.number }}
+          path: release_assets/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub release
+        if: inputs.publish_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Monster ${{ steps.version.outputs.number }} (portable)
+          draft: false
+          prerelease: false
+          body: |
+            ### Monster 便携版
+
+            仅提供便携压缩包，解压后运行 `Monster/Monster.cmd` 即可启动。
+
+            - 不含安装程序，不含在线安装包
+            - Python 环境与依赖已随包提供，运行时无需联网下载
+            - 由手动触发的 `Monster Portable Release` 工作流构建
+          files: release_assets/*
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
