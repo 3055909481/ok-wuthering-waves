@@ -46,6 +46,12 @@ jobs:
   build:
     name: Build portable archive
     runs-on: windows-latest
+    env:
+      # Injected into every git / libgit2 process in this job, including the
+      # repository PyAppify clones, so paths beyond MAX_PATH are accepted.
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: 'core.longpaths'
+      GIT_CONFIG_VALUE_0: 'true'
     defaults:
       run:
         shell: pwsh
@@ -58,6 +64,28 @@ jobs:
           git config --global core.eol lf
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
+
+      - name: Enable Windows long paths for the packaging checkout
+        run: |
+          # PyAppify checks out the application repository with libgit2. Several
+          # ok_templates/*.jpg names are ~170 characters; combined with the deep
+          # runner path (D:\a\<repo>\<repo>\pyappify_dist\Monster\data\apps\
+          # Monster\working\...) they exceed MAX_PATH (260) and libgit2 aborts
+          # the checkout with "path too long: ...; class=Filesystem (30)".
+          # libgit2 honours core.longpaths; the registry flag helps Win32 APIs
+          # that do not use the \\?\ prefix.
+          git config --global core.longpaths true
+          try {
+            New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' `
+              -Name 'LongPathsEnabled' -Value 1 -PropertyType DWord -Force -ErrorAction Stop | Out-Null
+            Write-Host 'Windows LongPathsEnabled registry flag set.'
+          } catch {
+            Write-Host "Could not set LongPathsEnabled (non-fatal): $($_.Exception.Message)"
+          }
+          $value = (& git config --get core.longpaths | Out-String).Trim()
+          $reg = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name LongPathsEnabled -ErrorAction SilentlyContinue).LongPathsEnabled
+          Write-Host "core.longpaths = $value ; HKLM LongPathsEnabled = $reg"
+          if ($value -ne 'true') { throw 'Failed to enable core.longpaths.' }
 
       - name: Check out source
         uses: actions/checkout@v4
@@ -188,6 +216,7 @@ jobs:
             ''
             'Only the portable archive is published; the launcher-only zip, hash file and any installer are discarded.'
             'Extract and run Monster/Monster.cmd. Python and all dependencies are bundled; no installer and no online download.'
+            'The app ships ok_templates/ images with long file names; extract with 7-Zip / WinRAR into a short folder (e.g. C:\Monster) if Windows Explorer reports a long-path error.'
           )
           Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value $summary
 
@@ -214,6 +243,7 @@ jobs:
 
             - 不含安装程序，不含在线安装包
             - Python 环境与依赖已随包提供，运行时无需联网下载
+            - 包内 `ok_templates/` 含长文件名，建议使用 7-Zip / WinRAR 解压到较短目录（如 `C:\Monster`）
             - 由手动触发的 `Monster Portable Release` 工作流构建
           files: release_assets/*
         env:
