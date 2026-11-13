@@ -73,7 +73,13 @@ jobs:
         run: |
           $tag = "$env:INPUT_VERSION".Trim()
           if ([string]::IsNullOrWhiteSpace($tag)) {
-            $tag = "v0.0.$env:RUN_NUMBER"
+            # This fork inherited 1000+ upstream tags (including v0.0.1..v0.0.39).
+            # Start at the run number and keep incrementing until the tag is free.
+            $used = @(& git tag -l "v0.0.*")
+            $candidate = [int]$env:RUN_NUMBER
+            while ($used -contains "v0.0.$candidate") { $candidate++ }
+            $tag = "v0.0.$candidate"
+            Write-Host "Auto-selected unused version tag: $tag"
           }
           # Must match PyAppify's version-tag pattern: v?X.Y.Z[-(alpha|beta|rc)[.N]]
           if ($tag -notmatch '^v?\d+\.\d+\.\d+(?:[-.](?:alpha|beta|rc)(?:\.\d+)?)?$') {
@@ -88,12 +94,14 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           git fetch --tags --force
-          $existing = (& git tag -l "$env:TAG").Trim()
+          # git tag -l yields no output (PowerShell $null) when the tag is absent;
+          # Out-String guarantees a string so .Trim() is always safe.
+          $existing = (& git tag -l "$env:TAG" | Out-String).Trim()
           if ($existing -eq $env:TAG) {
-            $tagged = (& git rev-parse "$env:TAG^{commit}").Trim()
-            $head = (& git rev-parse HEAD).Trim()
+            $tagged = (& git rev-parse "$env:TAG^{commit}" | Out-String).Trim()
+            $head = (& git rev-parse HEAD | Out-String).Trim()
             if ($tagged -ne $head) {
-              throw "Tag $env:TAG already exists on commit $tagged, not on HEAD $head. Pick another version."
+              throw "Tag $env:TAG already exists on commit $tagged (HEAD is $head). Use another version or leave version empty for an auto-selected one."
             }
             Write-Host "Reusing existing tag $env:TAG on HEAD."
           } else {
