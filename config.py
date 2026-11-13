@@ -179,6 +179,12 @@ config = {
     'blur_area': blur_area,
     'gui_icon': 'icons/icon.png',
     'global_configs': [basic_config_option, key_config_option, char_config_option, monthly_card_config_option],
+    # Team / character-code editor. Upstream unregistered this page (commits
+    # 8979325e / aa543c43) but still ships its implementation, tests and i18n,
+    # so re-enable it here for the Monster build.
+    'custom_tabs': [
+        ["src.gui.CharacterCodeTab", "CharacterCodeTab"],
+    ],
     'ocr': {
         'lib': 'onnxocr',
         'auto_simplify': True,
