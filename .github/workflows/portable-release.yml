@@ -328,7 +328,7 @@ jobs:
         env:
           VERSION_NUMBER: ${{ steps.version.outputs.number }}
         run: |
-          $partSize = 1900 * 1MB
+          $partSize = [long]1900 * 1MB
           $limit = 2147483648
           $source = @(Get-ChildItem -Path release_assets -Filter '*.7z' -File)
           if ($source.Count -ne 1) { throw "Expected exactly one 7z archive in release_assets, found $($source.Count)." }
@@ -343,11 +343,15 @@ jobs:
             while ($remaining -gt 0) {
               $partPath = Join-Path (Get-Location) ("release_parts/{0}.{1:d3}" -f $base, $index)
               $outStream = [System.IO.File]::Create($partPath)
-              $thisPart = [math]::Min($partSize, $remaining)
+              # Do not use [math]::Min here: PowerShell binds it to
+              # Min(int, int) and a >2 GiB Int64 length overflows Int32
+              # ("value was either too large or too small for an Int32").
+              $thisPart = if ($remaining -lt $partSize) { $remaining } else { $partSize }
               $written = 0
               try {
                 while ($written -lt $thisPart) {
-                  $toRead = [int][math]::Min($buffer.Length, $thisPart - $written)
+                  $space = $thisPart - $written
+                  $toRead = if ($space -lt $buffer.Length) { [int]$space } else { $buffer.Length }
                   $read = $inStream.Read($buffer, 0, $toRead)
                   if ($read -le 0) { break }
                   $outStream.Write($buffer, 0, $read)
