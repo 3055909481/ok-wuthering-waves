@@ -1,8 +1,8 @@
 <div align="center">
   <h1 align="center">
-    <img src="https://raw.githubusercontent.com/ok-oldking/ok-wuthering-waves/master/icons/icon.png" width="200" alt="ok-ww logo"/>
+    <img src="https://raw.githubusercontent.com/ok-oldking/ok-wuthering-waves/master/icons/icon.png" width="200" alt="Monster logo"/>
     <br/>
-    ok-ww
+    Monster
   </h1> 
   
   <p>

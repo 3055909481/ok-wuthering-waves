@@ -1,8 +1,8 @@
 <div align="center">
   <h1 align="center">
-    <img src="icons/icon.png" width="200" alt="ok-ww logo"/>
+    <img src="icons/icon.png" width="200" alt="Monster logo"/>
     <br/>
-    ok-ww
+    Monster
   </h1>
 
   <p>
