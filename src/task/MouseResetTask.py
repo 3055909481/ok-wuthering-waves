@@ -1,6 +1,6 @@
 import math
 
-from ok import TriggerTask, Logger
+from Mon import TriggerTask, Logger
 from src.task.task_icons import task_icon
 
 logger = Logger.get_logger(__name__)

@@ -1,5 +1,5 @@
 import time
-from ok import Logger
+from Mon import Logger
 from src.char.BaseChar import BaseChar, CharType, Elements
 
 _ROVER_FORM_NAMES = {

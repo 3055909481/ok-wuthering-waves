@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import src.task.MultiAccountDailyTask as multi_account_module
-from ok.task.exceptions import WaitFailedException
+from Mon.task.exceptions import WaitFailedException
 from src.task.BaseWWTask import LOGIN_TEXTS
 from src.task.MultiAccountDailyTask import (
     MultiAccountDailyTask,

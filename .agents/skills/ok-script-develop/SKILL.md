@@ -1,6 +1,6 @@
 ---
 name: ok-script-develop
-description: Develop or modify game automation functions using ok-script MCP, including tasks, characters, combat helpers, navigation, and recognition. Load the library's own development skills from the linked ok folder first, then the application's installed site-packages.
+description: Develop or modify game automation functions using Mon-script MCP, including tasks, characters, combat helpers, navigation, and recognition. Load the library's own development skills from the linked ok folder first, then the application's installed site-packages.
 ---
 
 # Game Development with OK Script
@@ -18,8 +18,8 @@ Resolve skills in this order before editing game behavior:
    source checkout, look in `<resolved-ok>/../.agents/skills`; for a packaged
    directory, look in `<resolved-ok>/agent_resources/.agents/skills`.
 2. If the linked/local directory does not provide the relevant consumer skills,
-   locate the application's installed `ok-script` distribution using its Python
-   interpreter and `importlib.metadata.distribution('ok-script').locate_file(...)`.
+   locate the application's installed `Mon-script` distribution using its Python
+   interpreter and `importlib.metadata.distribution('Mon-script').locate_file(...)`.
    Look under `ok/agent_resources/.agents/skills` in that environment's
    `site-packages`. Do not use a different interpreter's global installation.
 3. Read `develop/SKILL.md` from the selected library. Resolve its relative links
@@ -49,8 +49,8 @@ available; do not invent MCP tools or claim runtime validation.
 
 ## Use the library MCP workflow
 
-Use ok-script MCP for inspecting and exercising game behavior. Discover native
-ok-script tools when available; otherwise use the official MCP SDK from the
+Use Mon-script MCP for inspecting and exercising game behavior. Discover native
+Mon-script tools when available; otherwise use the official MCP SDK from the
 project environment with a local client script, as described by the library.
 Read the selected server's `list_skills()` and relevant `get_skill(skill_id)`
 results as well, and check that its project and library match the intended target.
@@ -119,7 +119,7 @@ failure. Validate visible reward settlement and a second run that skips complete
 content. Respect a requested current-screen baseline rather than automatically
 returning to the open world.
 
-Use ok-script MCP for game development and real input/capture validation. Follow
+Use Mon-script MCP for game development and real input/capture validation. Follow
 the selected library's interface restrictions, including its prohibition on
 Computer Use in this workflow. When GUI lifecycle is in scope, exercise the task
 card only through permitted APIs and report any remaining GUI validation gap.

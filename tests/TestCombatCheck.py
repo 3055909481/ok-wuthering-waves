@@ -1,7 +1,7 @@
 import time
 import unittest
 from config import config
-from ok.test.TaskTestCase import TaskTestCase
+from Mon.test.TaskTestCase import TaskTestCase
 from src.char.BaseChar import BaseChar
 from src.Labels import Labels
 from src.char.CharFactory import get_char_by_pos

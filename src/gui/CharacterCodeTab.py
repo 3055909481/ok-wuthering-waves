@@ -18,17 +18,17 @@ from PySide6.QtWidgets import (
     QStyledItemDelegate, QStyleOptionViewItem, QTableWidget, QTableWidgetItem, QTextEdit,
     QVBoxLayout, QWidget,
 )
-from ok.ui.qt.kit.buttons import Button
-from ok.ui.qt.kit.dialogs import Dialog
-from ok.ui.qt.kit.feedback import show_toast
-from ok.ui.qt.kit.icons import icon
-from ok.ui.qt.kit.inputs import ComboBox
-from ok.ui.qt.kit.theme import theme
+from Mon.ui.qt.kit.buttons import Button
+from Mon.ui.qt.kit.dialogs import Dialog
+from Mon.ui.qt.kit.feedback import show_toast
+from Mon.ui.qt.kit.icons import icon
+from Mon.ui.qt.kit.inputs import ComboBox
+from Mon.ui.qt.kit.theme import theme
 
-from ok import Logger, og
-from ok.ui.qt.tasks.EditTaskTab import CodeEditor
-from ok.ui.qt.tasks.PythonHighlighter import PythonHighlighter
-from ok.ui.qt.widget.CustomTab import CustomTab
+from Mon import Logger, og
+from Mon.ui.qt.tasks.EditTaskTab import CodeEditor
+from Mon.ui.qt.tasks.PythonHighlighter import PythonHighlighter
+from Mon.ui.qt.widget.CustomTab import CustomTab
 from src.char.CharFactory import apply_team_char_classes, char_dict
 from src.char.CustomCharLoader import (
     TEAM_CODE_MODE_BUILTIN, TEAM_CODE_MODE_IMPORT, TEAM_CODE_STATE_NONE,
@@ -43,7 +43,7 @@ BASE_CHAR_URL = "https://raw.githubusercontent.com/ok-oldking/ok-wuthering-waves
 UPLOAD_TEAM_URL = "https://github.com/ok-oldking/ok-ww-char-code"
 WORKSHOP_TEAMS_ALL_URL = "https://cfokwwchar.ok-script.com/teams.json"
 WORKSHOP_TEAM_URL = "https://cfokwwchar.ok-script.com/teams/{slug}.json"
-WORKSHOP_ARCHIVE_HOSTS = {"cfokwwchar.ok-script.com", "raw.githubusercontent.com"}
+WORKSHOP_ARCHIVE_HOSTS = {"cfokwwchar.Mon-script.com", "raw.githubusercontent.com"}
 WORKSHOP_USER_AGENT = "ok-wuthering-waves"
 logger = Logger.get_logger(__name__)
 
@@ -135,7 +135,7 @@ def team_state_tooltip(state):
 
 
 def translate_ui(message):
-    from ok import og
+    from Mon import og
     locale_str = ""
     if og.app:
         # Check current language/locale
@@ -1561,7 +1561,7 @@ class CharacterCodeTab(CustomTab):
         url = code.get("downloadUrl") or code.get("rawUrl")
         parsed = urlparse(str(url or ""))
         # Published workshop indexes can still contain the previous server's URLs.
-        if parsed.hostname == "okwwcharcode.ok-script.com":
+        if parsed.hostname == "okwwcharcode.Mon-script.com":
             parsed = parsed._replace(netloc=urlparse(WORKSHOP_TEAMS_ALL_URL).netloc)
             url = parsed.geturl()
         if parsed.scheme != "https" or parsed.hostname not in WORKSHOP_ARCHIVE_HOSTS:

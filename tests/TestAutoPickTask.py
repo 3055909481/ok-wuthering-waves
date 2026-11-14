@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 from config import config
-from ok.feature.FeatureSet import FeatureSet
+from Mon.feature.FeatureSet import FeatureSet
 from src.task.AutoPickTask import AutoPickTask
 
 

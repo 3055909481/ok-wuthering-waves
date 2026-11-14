@@ -6,9 +6,9 @@
   </h1> 
   
   <p>
-    一个基于图像识别的鸣潮自动化程序，支持后台运行，基于 <a href="https://ok-script.com">ok-script</a> 开发。
+    一个基于图像识别的鸣潮自动化程序，支持后台运行，基于 <a href="https://ok-script.com">Mon-script</a> 开发。
     <br />
-    An image-recognition-based automation tool for Wuthering Waves, with background mode support, developed with <a href="https://ok-script.com">ok-script</a>.
+    An image-recognition-based automation tool for Wuthering Waves, with background mode support, developed with <a href="https://ok-script.com">Mon-script</a>.
   </p>
   
   <p><i>通过 Windows 接口模拟用户进行操作，无内存读取、无文件修改</i></p>
@@ -87,7 +87,7 @@
 | --- | --- |
 | [evaluate-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/evaluate-team/SKILL.md) | 通过多次战斗评估当前队伍的自动战斗循环并提出建议。 |
 | [improve-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/improve-team/SKILL.md) | 根据队伍评估结果提出并验证角色自动战斗改进。 |
-| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | 使用 ok-script 开发和验证游戏自动化功能。 |
+| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | 使用 Mon-script 开发和验证游戏自动化功能。 |
 | [ok-script-tasks](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-tasks/SKILL.md) | 创建、修改或审查自动化任务。 |
 | [ok-ww-characters](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-ww-characters/SKILL.md) | 开发、审查和测试角色自动战斗逻辑。 |
 | [ok-script-i18n](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-i18n/SKILL.md) | 添加、同步和编译任务界面翻译。 |
@@ -111,7 +111,7 @@
 
 *   **Discord**: [点击加入](https://discord.gg/vVyCatEBgA)
 
-本项目基于 [ok-script](https://ok-script.com) 框架开发，简单易维护。欢迎有兴趣的开发者使用 [ok-script](https://ok-script.com) 开发您自己的自动化项目。
+本项目基于 [Mon-script](https://ok-script.com) 框架开发，简单易维护。欢迎有兴趣的开发者使用 [Mon-script](https://ok-script.com) 开发您自己的自动化项目。
 
 ## ❤️ 赞助与致谢
 

@@ -3,9 +3,9 @@ import re
 import time
 import os
 
-from ok import FindFeature, Logger
-from ok.feature.Box import get_bounding_box
-from ok.util.file import clear_folder
+from Mon import FindFeature, Logger
+from Mon.feature.Box import get_bounding_box
+from Mon.util.file import clear_folder
 from src.scene.WWScene import WWScene
 from src.task.BaseWWTask import BaseWWTask
 from src.task.task_icons import task_icon

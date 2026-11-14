@@ -1,7 +1,7 @@
 import re
 
 
-from ok import Logger, TaskDisabledException
+from Mon import Logger, TaskDisabledException
 from src.task.BaseWWTask import number_re
 from src.task.FarmEchoTask import FarmEchoTask
 from src.task.ForgeryTask import ForgeryTask
@@ -269,7 +269,7 @@ class DailyTask(WWOneTimeTask, BaseCombatTask):
         self.ensure_main(time_out=10)
 
 
-from ok import run_task
+from Mon import run_task
 from config import config
 
 if __name__ == "__main__":

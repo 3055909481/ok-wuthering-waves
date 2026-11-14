@@ -16,11 +16,11 @@ from PySide6.QtGui import QFontDatabase, QImage, QPainter
 
 from PySide6.QtWidgets import QApplication, QStyleOptionViewItem
 from PySide6.QtWidgets import QLabel, QLineEdit, QTableWidget, QTextEdit
-from ok.ui.qt.kit.buttons import Button
-from ok.ui.qt.kit.dialogs import Dialog
-from ok.ui.qt.kit.inputs import ComboBox
+from Mon.ui.qt.kit.buttons import Button
+from Mon.ui.qt.kit.dialogs import Dialog
+from Mon.ui.qt.kit.inputs import ComboBox
 
-from ok.util.config import Config
+from Mon.util.config import Config
 from src.char.Chixia import Chixia
 from src.char.Aemeath import Aemeath
 from src.char.Augusta import Augusta

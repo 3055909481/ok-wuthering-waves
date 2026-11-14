@@ -39,7 +39,7 @@ setuptools.setup(
     author="ok-oldking",
     author_email="firedcto@gmail.com",
     description="Automation with Computer Vision for Python",
-    url="https://github.com/ok-oldking/ok-script",
+    url="https://github.com/3055909481/Mon-script",
     packages=setuptools.find_packages(),
     include_package_data=True,
     classifiers=[

@@ -6,7 +6,7 @@
   </h1> 
   
   <p>
-    An image-recognition-based automation tool for Wuthering Waves, with background mode support, developed with <a href="https://ok-script.com">ok-script</a>.
+    An image-recognition-based automation tool for Wuthering Waves, with background mode support, developed with <a href="https://ok-script.com">Mon-script</a>.
   </p>
   
   <p><i>Operates by simulating the Windows user interface, with no memory reading or file modification.</i></p>
@@ -85,7 +85,7 @@ Before evaluating or improving a team, select the team and enter 深境再临 or
 | --- | --- |
 | [evaluate-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/evaluate-team/SKILL.md) | Evaluate the current team's automated combat over multiple runs and suggest improvements. |
 | [improve-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/improve-team/SKILL.md) | Propose and validate combat improvements based on a team evaluation. |
-| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | Develop and validate game automation with ok-script. |
+| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | Develop and validate game automation with Mon-script. |
 | [ok-script-tasks](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-tasks/SKILL.md) | Create, modify, or review automation tasks. |
 | [ok-ww-characters](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-ww-characters/SKILL.md) | Develop, review, and test character combat logic. |
 | [ok-script-i18n](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-i18n/SKILL.md) | Add, synchronize, and compile task UI translations. |
@@ -107,7 +107,7 @@ You can use command-line arguments for automated startup.
 
 ## 💬 Join Us
 
-This project is developed using the [ok-script](https://ok-script.com) framework and is designed to be simple and easy to maintain. Developers interested in creating their own automation projects are welcome to use [ok-script](https://ok-script.com).
+This project is developed using the [Mon-script](https://ok-script.com) framework and is designed to be simple and easy to maintain. Developers interested in creating their own automation projects are welcome to use [Mon-script](https://ok-script.com).
 
 ## ❤️ Sponsors & Acknowledgements
 

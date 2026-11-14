@@ -6,8 +6,8 @@ from typing import List
 
 import numpy as np
 
-from ok import BaseTask, Logger, find_boxes_by_name, og, find_color_rectangles, mask_white, Box
-from ok import CannotFindException
+from Mon import BaseTask, Logger, find_boxes_by_name, og, find_color_rectangles, mask_white, Box
+from Mon import CannotFindException
 import cv2
 
 from src.Labels import Labels

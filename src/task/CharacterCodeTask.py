@@ -3,7 +3,7 @@ import io
 import json
 from pathlib import Path
 
-from ok import WebCustomTab, WebTabConfig, task_tab_action, task_tab_query
+from Mon import WebCustomTab, WebTabConfig, task_tab_action, task_tab_query
 from PIL import Image
 
 from src.char.CharFactory import char_dict

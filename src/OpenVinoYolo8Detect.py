@@ -4,7 +4,7 @@ from openvino import Core
 import cv2
 import numpy as np
 
-from ok import Logger, Box, sort_boxes
+from Mon import Logger, Box, sort_boxes
 
 logger = Logger.get_logger(__name__)
 

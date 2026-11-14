@@ -8,8 +8,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from ok import Logger
-from ok.util.config import Config
+from Mon import Logger
+from Mon.util.config import Config
 
 logger = Logger.get_logger(__name__)
 

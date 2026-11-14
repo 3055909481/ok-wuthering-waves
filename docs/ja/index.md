@@ -6,7 +6,7 @@
   </h1> 
   
   <p>
-    <a href="https://ok-script.com">ok-script</a> で開発された、鳴潮（Wuthering Waves）向けの画像認識ベースの自動化ツールです。バックグラウンドモードに対応しています。
+    <a href="https://ok-script.com">Mon-script</a> で開発された、鳴潮（Wuthering Waves）向けの画像認識ベースの自動化ツールです。バックグラウンドモードに対応しています。
   </p>
   
   <p><i>Windows のユーザーインターフェースをシミュレートして動作し、メモリの読み取りやファイルの改変は一切行いません。</i></p>
@@ -85,7 +85,7 @@
 | --- | --- |
 | [evaluate-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/evaluate-team/SKILL.md) | 複数回の戦闘で現在のチームの自動戦闘を評価し、改善案を提示します。 |
 | [improve-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/improve-team/SKILL.md) | チームの評価に基づき、自動戦闘の改善を提案・検証します。 |
-| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | ok-script を使ってゲーム自動化機能を開発・検証します。 |
+| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | Mon-script を使ってゲーム自動化機能を開発・検証します。 |
 | [ok-script-tasks](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-tasks/SKILL.md) | 自動化タスクを作成、変更、レビューします。 |
 | [ok-ww-characters](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-ww-characters/SKILL.md) | キャラクターの自動戦闘ロジックを開発、レビュー、テストします。 |
 | [ok-script-i18n](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-i18n/SKILL.md) | タスク UI の翻訳を追加、同期、コンパイルします。 |
@@ -107,7 +107,7 @@
 
 ## 💬 参加しよう
 
-本プロジェクトは [ok-script](https://ok-script.com) フレームワークをベースに開発されており、シンプルでメンテナンスしやすい構成です。独自の自動化プロジェクトを作成したい開発者の方は、ぜひ [ok-script](https://ok-script.com) をご利用ください。
+本プロジェクトは [Mon-script](https://ok-script.com) フレームワークをベースに開発されており、シンプルでメンテナンスしやすい構成です。独自の自動化プロジェクトを作成したい開発者の方は、ぜひ [Mon-script](https://ok-script.com) をご利用ください。
 
 ## ❤️ スポンサーと謝辞
 

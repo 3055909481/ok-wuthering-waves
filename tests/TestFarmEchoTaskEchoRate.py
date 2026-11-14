@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from ok.task.task import BaseTask
+from Mon.task.task import BaseTask
 from src.task.BaseWWTask import BaseWWTask
 from src.task.FarmEchoTask import FarmEchoTask
 from src.task.WWOneTimeTask import WWOneTimeTask
@@ -15,7 +15,7 @@ class FakeFarmEchoTask:
     incr_drop = BaseWWTask.incr_drop
 
     def __init__(self, fail_first=False):
-        self.start_time = 0  # ok-script default; only the executor sets it when it starts a task
+        self.start_time = 0  # Mon-script default; only the executor sets it when it starts a task
         self.info = {}
         self.config = {}
         self.fail_first = fail_first

@@ -179,7 +179,7 @@ class TestTacetElimination(unittest.TestCase):
                                send_key=Mock(), reset_scene=Mock(),
                                ocr=Mock(side_effect=[[SimpleNamespace(name='开始挑战')], []]),
                                wait_until=lambda predicate, **kwargs: predicate())
-        with patch('ok.device.interaction_methods.pynput.PynputInteraction') as backend:
+        with patch('Mon.device.interaction_methods.pynput.PynputInteraction') as backend:
             TacetEliminationTask.return_to_stage_list(task)
         backend.return_value.send_key.assert_called_once_with('esc', down_time=.1)
 

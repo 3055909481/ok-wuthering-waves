@@ -1,6 +1,6 @@
 import cv2
 
-from ok import Logger, find_color_rectangles
+from Mon import Logger, find_color_rectangles
 from src.task.DomainTask import DomainTask
 from src.task.task_icons import task_icon
 

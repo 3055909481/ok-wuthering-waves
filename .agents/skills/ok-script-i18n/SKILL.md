@@ -1,13 +1,13 @@
 ---
 name: ok-script-i18n
-description: Add, sync, repair, and compile gettext translations for ok-script Python task classes and task metadata. Use when Codex needs to translate or internationalize BaseTask and TriggerTask names, descriptions, default_config keys or values, config_description help text, config_type options, OCR-facing UI strings, or locale-specific ok.po catalogs in ok-script style projects.
+description: Add, sync, repair, and compile gettext translations for Mon-script Python task classes and task metadata. Use when Codex needs to translate or internationalize BaseTask and TriggerTask names, descriptions, default_config keys or values, config_description help text, config_type options, OCR-facing UI strings, or locale-specific ok.po catalogs in Mon-script style projects.
 ---
 
 # OK Script i18n
 
 ## Overview
 
-Use this skill for gettext translation work in ok-script projects that keep catalogs under `i18n/<locale>/LC_MESSAGES/ok.po`. It complements `$ok-script-tasks`: create task behavior with the task skill, then use this skill to keep task UI strings translated and compiled.
+Use this skill for gettext translation work in Mon-script projects that keep catalogs under `i18n/<locale>/LC_MESSAGES/ok.po`. It complements `$ok-script-tasks`: create task behavior with the task skill, then use this skill to keep task UI strings translated and compiled.
 
 ## Workflow
 
@@ -59,7 +59,7 @@ The scanner is a helper, not a substitute for reading the task. It finds common 
 
 ## Integration With Task Work
 
-When adding or modifying an ok-script task:
+When adding or modifying an Mon-script task:
 
 1. First use `$ok-script-tasks` to implement the task and identify user-facing strings.
 2. Then use `$ok-script-i18n` to sync gettext catalogs for those strings.

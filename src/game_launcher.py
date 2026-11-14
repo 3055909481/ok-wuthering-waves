@@ -2,8 +2,8 @@ import base64
 import json
 from pathlib import Path
 
-from ok import Logger, og
-from ok.core.notifications import alert_error
+from Mon import Logger, og
+from Mon.core.notifications import alert_error
 
 logger = Logger.get_logger(__name__)
 GAME_PACKAGES = ('sd', 'hd', 'uhd')

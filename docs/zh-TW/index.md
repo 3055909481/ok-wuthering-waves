@@ -6,7 +6,7 @@
   </h1> 
   
   <p>
-    一個基於圖像辨識的鳴潮自動化程式，支援背景執行，基於 <a href="https://ok-script.com">ok-script</a> 開發。
+    一個基於圖像辨識的鳴潮自動化程式，支援背景執行，基於 <a href="https://ok-script.com">Mon-script</a> 開發。
   </p>
   
   <p><i>透過 Windows 介面模擬使用者操作，無記憶體讀取、無檔案修改</i></p>
@@ -85,7 +85,7 @@
 | --- | --- |
 | [evaluate-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/evaluate-team/SKILL.md) | 透過多次戰鬥評估目前隊伍的自動戰鬥循環並提出建議。 |
 | [improve-team](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/improve-team/SKILL.md) | 根據隊伍評估結果提出並驗證角色自動戰鬥改進。 |
-| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | 使用 ok-script 開發和驗證遊戲自動化功能。 |
+| [ok-script-develop](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-develop/SKILL.md) | 使用 Mon-script 開發和驗證遊戲自動化功能。 |
 | [ok-script-tasks](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-tasks/SKILL.md) | 建立、修改或審查自動化任務。 |
 | [ok-ww-characters](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-ww-characters/SKILL.md) | 開發、審查和測試角色自動戰鬥邏輯。 |
 | [ok-script-i18n](https://github.com/ok-oldking/ok-wuthering-waves/blob/master/.agents/skills/ok-script-i18n/SKILL.md) | 新增、同步和編譯任務介面翻譯。 |
@@ -109,7 +109,7 @@
 
 *   **Discord**: [點擊加入](https://discord.gg/vVyCatEBgA)
 
-本專案基於 [ok-script](https://ok-script.com) 框架開發，簡單易維護。歡迎有興趣的開發者使用 [ok-script](https://ok-script.com) 開發您自己的自動化專案。
+本專案基於 [Mon-script](https://ok-script.com) 框架開發，簡單易維護。歡迎有興趣的開發者使用 [Mon-script](https://ok-script.com) 開發您自己的自動化專案。
 
 ## ❤️ 贊助與致謝
 

@@ -1,4 +1,4 @@
-"""Submit this file through ok-script MCP run_task; configure a copy for overrides."""
+"""Submit this file through Mon-script MCP run_task; configure a copy for overrides."""
 
 import json
 import inspect
@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import cv2
-from ok import BaseTask
+from Mon import BaseTask
 from src.task.AutoCombatTask import AutoCombatTask
 from src.task.BaseCombatTask import NotInCombatException
 

@@ -1,5 +1,5 @@
 src
-ok
+Mon
 config.py
 main.py
 Monster.exe

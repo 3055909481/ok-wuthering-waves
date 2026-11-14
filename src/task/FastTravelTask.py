@@ -1,5 +1,5 @@
 import re
-from ok import TriggerTask, Logger
+from Mon import TriggerTask, Logger
 from src.task.BaseWWTask import BaseWWTask
 from src.task.task_icons import task_icon
 

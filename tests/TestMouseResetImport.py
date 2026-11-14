@@ -9,14 +9,14 @@ from unittest.mock import Mock, patch
 class TestMouseResetImport(unittest.TestCase):
     def load_task(self):
         logger = Mock()
-        framework = ModuleType('ok')
+        framework = ModuleType('Mon')
         framework.TriggerTask = type('TriggerTask', (), {})
         framework.Logger = SimpleNamespace(get_logger=lambda name: logger)
         path = Path(__file__).resolve().parents[1] / 'src/task/MouseResetTask.py'
         spec = importlib.util.spec_from_file_location('_mouse_reset_import_test', path)
         module = importlib.util.module_from_spec(spec)
         # None forces ModuleNotFoundError even when pywin32 is installed locally.
-        with patch.dict('sys.modules', {'ok': framework, 'win32api': None}):
+        with patch.dict('sys.modules', {'Mon': framework, 'win32api': None}):
             spec.loader.exec_module(module)
         task = module.MouseResetTask()
         task.enabled = True

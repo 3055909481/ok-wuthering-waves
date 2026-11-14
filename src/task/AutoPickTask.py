@@ -1,7 +1,7 @@
 import time
 
-from ok import Logger
-from ok import TriggerTask
+from Mon import Logger
+from Mon import TriggerTask
 from src.task.AutoCombatTask import AutoCombatTask
 from src.task.BaseWWTask import BaseWWTask, f_white_color
 from src.task.task_icons import task_icon

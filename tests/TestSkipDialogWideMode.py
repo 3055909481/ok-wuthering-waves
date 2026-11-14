@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 from config import config
-from ok.test.TaskTestCase import TaskTestCase
+from Mon.test.TaskTestCase import TaskTestCase
 from src.task.SkipDialogTask import AutoDialogTask
 
 config['debug'] = True

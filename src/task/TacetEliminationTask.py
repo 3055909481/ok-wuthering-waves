@@ -177,7 +177,7 @@ class TacetEliminationTask(WWOneTimeTask, BaseWWTask):
         self.drag_relative(cell_position(*start), cell_position(*end))
 
     def drag_relative(self, first, last, smooth=False):
-        from ok.device.interaction_methods.pynput import PynputInteraction
+        from Mon.device.interaction_methods.pynput import PynputInteraction
 
         # The event's drag control reads the real cursor during a drag.
         # Normal event buttons continue to use the configured interaction.
@@ -338,7 +338,7 @@ class TacetEliminationTask(WWOneTimeTask, BaseWWTask):
         return False
 
     def foreground_click(self, box):
-        from ok.device.interaction_methods.pynput import PynputInteraction
+        from Mon.device.interaction_methods.pynput import PynputInteraction
 
         interaction = self.executor.interaction
         window = interaction.hwnd_window
@@ -355,7 +355,7 @@ class TacetEliminationTask(WWOneTimeTask, BaseWWTask):
             r'开始挑战|Start Challenge', re.I)))
         if self.wait_until(lambda: not on_details(), time_out=2):
             return
-        from ok.device.interaction_methods.pynput import PynputInteraction
+        from Mon.device.interaction_methods.pynput import PynputInteraction
 
         interaction = self.executor.interaction
         window = interaction.hwnd_window

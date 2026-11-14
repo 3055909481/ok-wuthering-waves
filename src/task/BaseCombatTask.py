@@ -6,9 +6,9 @@ from decimal import Decimal, ROUND_UP, ROUND_DOWN
 import cv2
 import numpy as np
 
-from ok import Logger, Config
-from ok import color_range_to_bound
-from ok import safe_get
+from Mon import Logger, Config
+from Mon import color_range_to_bound
+from Mon import safe_get
 from src import text_white_color
 from src.char import BaseChar
 from src.char.BaseChar import SwitchPriority, dot_color  # noqa

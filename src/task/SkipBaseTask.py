@@ -1,7 +1,7 @@
 import re
 import time
 
-from ok import Logger
+from Mon import Logger
 
 from src.task.BaseWWTask import BaseWWTask, convert_bw, convert_dialog_icon
 

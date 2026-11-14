@@ -2,7 +2,7 @@ import time
 import unittest
 from unittest.mock import patch
 from config import config
-from ok.test.TaskTestCase import TaskTestCase
+from Mon.test.TaskTestCase import TaskTestCase
 from src.Labels import Labels
 from src.char.BaseChar import BaseChar, CharType, Elements, SwitchPriority, get_default_buff_time
 from src.char.CharFactory import _get_buff_time, _get_char_type, char_dict, char_names, get_char_by_pos

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from ok import Box
+from Mon import Box
 from src.scene.WWScene import WWScene
 from src.task.BaseCombatTask import BaseCombatTask
 from src.task.AutoPickTask import AutoPickTask

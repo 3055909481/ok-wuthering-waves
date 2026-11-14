@@ -1,6 +1,6 @@
 import time
 
-from ok import TriggerTask, Logger, TaskDisabledException
+from Mon import TriggerTask, Logger, TaskDisabledException
 from src.char.CharFactory import char_names
 from src.scene.WWScene import WWScene
 from src.task.BaseCombatTask import BaseCombatTask, NotInCombatException, CharDeadException
@@ -117,7 +117,7 @@ class AutoCombatTask(BaseCombatTask, TriggerTask):
         self.sleep(0.02)
 
 
-from ok import run_task
+from Mon import run_task
 from config import config
 
 if __name__ == "__main__":

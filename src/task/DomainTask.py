@@ -1,7 +1,7 @@
 import re
 
 
-from ok import Logger
+from Mon import Logger
 from src.task.BaseCombatTask import BaseCombatTask, NotInCombatException, CharDeadException
 from src.task.WWOneTimeTask import WWOneTimeTask
 

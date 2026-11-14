@@ -1,13 +1,13 @@
 ---
 name: ok-script-tasks
-description: Create and modify automation task classes using the ok-script library's development skills and MCP workflow, including BaseTask, TriggerTask, task config UI metadata, registration, custom ok_tasks scripts, and bilingual English/Chinese behavior. Also use to review or explain ok-script tasks.
+description: Create and modify automation task classes using the Mon-script library's development skills and MCP workflow, including BaseTask, TriggerTask, task config UI metadata, registration, custom ok_tasks scripts, and bilingual English/Chinese behavior. Also use to review or explain Mon-script tasks.
 ---
 
 # OK Script Tasks
 
 ## Overview
 
-Use this skill to create or modify tasks built on the PyPI `ok-script` library. Keep guidance generic to `ok-script`; inspect the current project only to discover its local base classes, scene helpers, feature names, and registration style.
+Use this skill to create or modify tasks built on the PyPI `Mon-script` library. Keep guidance generic to `Mon-script`; inspect the current project only to discover its local base classes, scene helpers, feature names, and registration style.
 
 Before developing or modifying game task behavior, follow
 [ok-script-develop](../ok-script-develop/SKILL.md): locate and read the library's
@@ -50,7 +50,7 @@ Support English and Chinese in both code review and generated code.
 - Prefer stable English config keys because config keys become persisted JSON fields. Add Chinese help in `config_description` or through the project's translation system.
 - Include both English and Chinese OCR match text when the UI may appear in either language.
 - Use `supported_languages` only to hide a task in unsupported locales. Common locale names are `en_US`, `zh_CN`, `zh_TW`, `ja_JP`, `ko_KR`, and `es_ES`.
-- Do not hard-code assumptions from the source project used to study `ok-script` unless the target project explicitly uses them.
+- Do not hard-code assumptions from the source project used to study `Mon-script` unless the target project explicitly uses them.
 
 ## Essential Rules
 

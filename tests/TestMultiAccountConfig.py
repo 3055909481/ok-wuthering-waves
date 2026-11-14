@@ -11,10 +11,10 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QTableWidgetItem, QWidget
-from ok import BaseTask, Box, PostMessageInteraction, og
-from ok.task.exceptions import TaskDisabledException, WaitFailedException
-from ok.ui.qt.tasks.config_form import ConfigForm
-from ok.util.config import Config
+from Mon import BaseTask, Box, PostMessageInteraction, og
+from Mon.task.exceptions import TaskDisabledException, WaitFailedException
+from Mon.ui.qt.tasks.config_form import ConfigForm
+from Mon.util.config import Config
 
 from src.gui.MultiAccountConfigTab import AccountStatusTable, AccountTaskCard, MultiAccountConfigTab
 from src.gui.MultiAccountConfigDialog import MultiAccountConfigDialog
@@ -159,7 +159,7 @@ class TestMultiAccountConfig(unittest.TestCase):
         runner.logger = Mock()
         # Exercise real Box -> task.click -> PostMessage.click, mocking only OS I/O.
         with patch('win32api.SetCursorPos', side_effect=lambda pos: cursor.__setitem__(slice(None), pos)), \
-                patch('ok.device.interaction_methods.post_message.time.sleep'):
+                patch('Mon.device.interaction_methods.post_message.time.sleep'):
             runner.click([Box(1259, 782, 40, 20, name='登录')])
         self.assertEqual(delivered, [(1579, 892)])
         runner.sleep.assert_any_call(0.2)
@@ -693,7 +693,7 @@ class TestMultiAccountConfigUI(unittest.TestCase):
                 switch.setChecked(True)
                 self.assertTrue(runner.config['Per-account Configuration'])
                 self.assertFalse(action.isHidden())
-                from ok.ui.qt.kit.buttons import Button
+                from Mon.ui.qt.kit.buttons import Button
                 with patch.object(MultiAccountConfigDialog, 'exec', autospec=True, side_effect=edit_dialog) as opened:
                     action.findChild(Button).click()
                 opened.assert_called_once()

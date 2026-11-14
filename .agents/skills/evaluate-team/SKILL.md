@@ -1,6 +1,6 @@
 ---
 name: evaluate-team
-description: Evaluate the currently equipped Wuthering Waves team through ok-script MCP using repeated Abyss combats, explain its observed rotation, and recommend character automation improvements. Defaults to three runs and supports final-score and remaining-time modes.
+description: Evaluate the currently equipped Wuthering Waves team through Mon-script MCP using repeated Abyss combats, explain its observed rotation, and recommend character automation improvements. Defaults to three runs and supports final-score and remaining-time modes.
 ---
 
 # Evaluate the current team

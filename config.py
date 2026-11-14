@@ -2,8 +2,8 @@ import os
 import re
 from pathlib import Path
 
-from ok import Box, ConfigOption, Icon
-from ok.util.GlobalConfig import create_basic_options
+from Mon import Box, ConfigOption, Icon
+from Mon.util.GlobalConfig import create_basic_options
 from src.game_launcher import get_game_launch_arguments
 from src.task.process_feature import process_feature
 from src.task.task_icons import task_icon

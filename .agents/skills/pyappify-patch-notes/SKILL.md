@@ -56,7 +56,7 @@ The example illustrates syntax, not actual release claims or a version to use.
 
 Limit release-note history to **ok-ww v3.0.0 onward**. Do not generate or
 backfill sections for 2.x or earlier releases. This cutoff refers to the app's
-version tags, not the ok-script or PyAppify dependency versions. When reporting
+version tags, not the Mon-script or PyAppify dependency versions. When reporting
 the generated range, explicitly mention the v3.0.0 history cutoff. A request for
 the next release still covers that release's changes since its baseline;
 historical backfills cover only the requested releases within this cutoff.

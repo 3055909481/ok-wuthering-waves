@@ -19,14 +19,14 @@ sharp on high-DPI displays.
 Tasks set `self.icon` and `self.group_icon` to absolute paths using
 `src.task.task_icons`, which prefers SVG replacements when available, including
 when an older release's PNG remains on disk after an update.
-The existing emoji-prefixed `self.name` values remain gettext keys; ok-script's
+The existing emoji-prefixed `self.name` values remain gettext keys; Mon-script's
 task page removes that prefix from the displayed title and prefers `self.icon`
 over the emoji tile. This preserves translations and saved task settings.
 
 Daily Activities uses the native guidebook icon, Echo Management the echo-tuning symbol,
 and Multi-account the Friends icon. `config.py` also supplies native All,
 On-demand, and Triggers artwork through `task_category_icons`. The linked
-ok-script UI accepts these overrides for filter tabs and section headings.
+Mon-script UI accepts these overrides for filter tabs and section headings.
 
 These are UI assets, not recognition templates. The `icons` directory is included
 by `deploy.txt` in release updates. The task-list icons have no background tile.

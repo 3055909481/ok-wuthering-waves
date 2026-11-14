@@ -1,7 +1,7 @@
 import re
 
 
-from ok import Logger, run_task
+from Mon import Logger, run_task
 from config import config
 from src.Labels import Labels
 from src.task.BaseWWTask import BaseWWTask

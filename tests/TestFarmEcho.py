@@ -1,6 +1,6 @@
 import unittest
 from config import config
-from ok.test.TaskTestCase import TaskTestCase
+from Mon.test.TaskTestCase import TaskTestCase
 from src.task.DailyTask import DailyTask
 from src.task.FarmEchoTask import FarmEchoTask
 from src.task.FiveToOneTask import FiveToOneTask

@@ -6,8 +6,8 @@ from unittest.mock import create_autospec, patch
 import cv2
 import numpy as np
 
-from ok.feature.FeatureSet import FeatureSet
-from ok.task.TaskExecutor import TaskExecutor
+from Mon.feature.FeatureSet import FeatureSet
+from Mon.task.TaskExecutor import TaskExecutor
 from src.Labels import Labels
 from src.char.BaseChar import BaseChar
 from src.char.Hsin import Hsin

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from ok.util.config import Config
+from Mon.util.config import Config
 from src.Labels import Labels
 from src.char.Baizhi import Baizhi
 from src.char.Chixia import Chixia

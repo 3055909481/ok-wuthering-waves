@@ -1,6 +1,6 @@
 import re
 
-from ok import Logger
+from Mon import Logger
 from src.task.DomainTask import DomainTask
 from src.task.task_icons import task_icon
 

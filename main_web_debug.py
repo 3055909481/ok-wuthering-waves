@@ -1,6 +1,6 @@
 if __name__ == "__main__":
     from config import config
-    from ok import OK
+    from Mon import OK
 
     config = config
     config["debug"] = True

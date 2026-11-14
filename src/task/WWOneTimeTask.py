@@ -1,4 +1,4 @@
-from ok import BrowserInteraction, PostMessageInteraction
+from Mon import BrowserInteraction, PostMessageInteraction
 from src.task.MouseResetTask import MouseResetTask
 
 

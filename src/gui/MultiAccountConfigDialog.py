@@ -1,4 +1,4 @@
-from ok.ui.qt.kit.dialogs import Dialog
+from Mon.ui.qt.kit.dialogs import Dialog
 
 from src.gui.MultiAccountConfigTab import MultiAccountConfigTab
 

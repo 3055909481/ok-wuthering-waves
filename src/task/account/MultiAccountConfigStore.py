@@ -5,7 +5,7 @@ from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 
-from ok import og
+from Mon import og
 
 
 def _tr(message):

@@ -7,7 +7,7 @@ import numpy as np
 import math
 
 from src.char.BaseChar import BaseChar, SwitchPriority, forte_white_color
-from ok import color_range_to_bound
+from Mon import color_range_to_bound
 
 class State(Enum):
     FORTE_FULL = 1

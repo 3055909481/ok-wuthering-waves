@@ -6,9 +6,9 @@
   </h1>
 
   <p>
-    一个基于图像识别的鸣潮自动化程序，支持后台运行，基于 <a href="https://ok-script.com">ok-script</a> 开发。
+    一个基于图像识别的鸣潮自动化程序，支持后台运行，基于 <a href="https://ok-script.com">Mon-script</a> 开发。
     <br />
-    An image-recognition-based automation tool for Wuthering Waves, with background mode support, developed with <a href="https://ok-script.com">ok-script</a>.
+    An image-recognition-based automation tool for Wuthering Waves, with background mode support, developed with <a href="https://ok-script.com">Mon-script</a>.
   </p>
 
   <p><i>通过 Windows 接口模拟用户进行操作，无内存读取、无文件修改</i></p>
@@ -122,6 +122,25 @@ git_url: "https://github.com/3055909481/ok-wuthering-waves.git"
 
 ---
 
+## 🔗 依赖：Mon-script（ok-script 的 fork）
+
+本项目不再使用 PyPI 上的官方 `ok-script`，改为自建 fork **[Mon-script](https://github.com/3055909481/Mon-script)**，以隔离命名空间、避免与官方包冲突：
+
+| 项目 | 值 |
+| --- | --- |
+| 分发名 | `Mon-script` |
+| Python 顶层模块 | `Mon`（源码中 `from ok import ...` 已全部改为 `from Mon import ...`） |
+| 安装来源 | `Mon-script[ocr,qt] @ git+https://github.com/3055909481/Mon-script.git@v3.0.5b7-mon1` |
+| 上游 | [ok-oldking/ok-script](https://github.com/ok-oldking/ok-script)，版本基线 `v3.0.5b7` |
+
+修改依赖时需同时更新 `pyproject.toml` 和 `requirements.txt`（后者是锁文件，PyAppify 打包时用 `--no-deps` 按它安装）。升级方法：在 Mon-script 仓库提交改动并打新 tag，再把这两个文件里的 tag 换成新值；fork 未发布到 PyPI，所以必须保留 `git+https://...` 形式。
+
+> **刻意保留的旧名**：gettext 翻译域仍是 `ok`（`i18n/*/LC_MESSAGES/ok.po` / `ok.mo`）、运行时对象属性仍是 `og.ok`、issue 日志解析脚本仍认 `logs/ok-script.log`。这些不是 Python 模块名，改动会破坏现有翻译文件和上游日志附件的解析。
+>
+> 依据原项目 [LICENSE.txt](LICENSE.txt) 第 4 条，衍生版本必须保留对 **ok-script** 的提及与链接；本项目同时保留上游官网 `https://ok-script.com` 的链接作为致谢。
+
+---
+
 ## 💻 开发者专区
 
 ### 从源码运行
@@ -138,7 +157,7 @@ git_url: "https://github.com/3055909481/ok-wuthering-waves.git"
 | --- | --- |
 | [evaluate-team](.agents/skills/evaluate-team/SKILL.md) | 通过多次战斗评估当前队伍的自动战斗循环并提出建议。 |
 | [improve-team](.agents/skills/improve-team/SKILL.md) | 根据队伍评估结果提出并验证角色自动战斗改进。 |
-| [ok-script-develop](.agents/skills/ok-script-develop/SKILL.md) | 使用 ok-script 开发和验证游戏自动化功能。 |
+| [ok-script-develop](.agents/skills/ok-script-develop/SKILL.md) | 使用 Mon-script 开发和验证游戏自动化功能。 |
 | [ok-script-tasks](.agents/skills/ok-script-tasks/SKILL.md) | 创建、修改或审查自动化任务。 |
 | [ok-ww-characters](.agents/skills/ok-ww-characters/SKILL.md) | 开发、审查和测试角色自动战斗逻辑。 |
 | [ok-script-i18n](.agents/skills/ok-script-i18n/SKILL.md) | 添加、同步和编译任务界面翻译。 |
@@ -162,7 +181,7 @@ git_url: "https://github.com/3055909481/ok-wuthering-waves.git"
 
 *   **Discord**: [点击加入](https://discord.gg/vVyCatEBgA)
 
-本项目基于 [ok-script](https://ok-script.com) 框架开发，简单易维护。欢迎有兴趣的开发者使用 [ok-script](https://ok-script.com) 开发您自己的自动化项目。
+本项目基于 [Mon-script](https://ok-script.com) 框架开发，简单易维护。欢迎有兴趣的开发者使用 [Mon-script](https://ok-script.com) 开发您自己的自动化项目。
 
 ## ❤️ 赞助与致谢
 

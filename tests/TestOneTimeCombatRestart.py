@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from ok import TaskDisabledException
+from Mon import TaskDisabledException
 from src.char.BaseChar import BaseChar
 from src.scene.WWScene import WWScene
 from src.task.FarmEchoTask import FarmEchoTask

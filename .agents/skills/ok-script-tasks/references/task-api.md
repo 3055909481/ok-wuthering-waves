@@ -1,11 +1,11 @@
-# ok-script Task API Reference
+# Mon-script Task API Reference
 
 ## Core Classes
 
 Import commonly used task APIs from `ok`:
 
 ```python
-from ok import BaseTask, TriggerTask, Logger, ConfigOption, run_task
+from Mon import BaseTask, TriggerTask, Logger, ConfigOption, run_task
 ```
 
 `BaseTask` is the base for one-time tasks. Important fields initialized by the library include:
@@ -82,7 +82,7 @@ self.config_type = {
 }
 ```
 
-Supported explicit types seen in ok-script GUI code:
+Supported explicit types seen in Mon-script GUI code:
 
 - `drop_down`
 - `multi_selection`
@@ -117,7 +117,7 @@ Then place a `.py` file in `ok_tasks/`. The loader parses top-level classes and 
 Headless helpers can run by index, name, class, or instance:
 
 ```python
-from ok import run_task
+from Mon import run_task
 from my_project.config import config
 from my_project.tasks.daily import DailyTask
 

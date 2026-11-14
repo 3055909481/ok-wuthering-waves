@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from ok import TaskDisabledException
+from Mon import TaskDisabledException
 from src.char.BaseChar import BaseChar
 from src.char.CharFactory import get_char_by_pos
 from src.scene.WWScene import WWScene

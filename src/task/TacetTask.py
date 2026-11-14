@@ -1,4 +1,4 @@
-from ok import Logger
+from Mon import Logger
 from src.task.BaseCombatTask import BaseCombatTask, CharRevivedException
 from src.task.WWOneTimeTask import WWOneTimeTask
 from src.task.task_icons import task_icon

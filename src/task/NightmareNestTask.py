@@ -2,7 +2,7 @@ import re
 import cv2
 from dataclasses import dataclass
 
-from ok import Logger
+from Mon import Logger
 from src.task.BaseCombatTask import BaseCombatTask, CharRevivedException
 from src.task.BaseWWTask import TEAM_SCREEN_FEATURES
 from src.task.WWOneTimeTask import WWOneTimeTask
@@ -270,7 +270,7 @@ def convert_image_to_negative(img):
     return _mat
 
 
-from ok import run_task
+from Mon import run_task
 from config import config
 
 if __name__ == "__main__":

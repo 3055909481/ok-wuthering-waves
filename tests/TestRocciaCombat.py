@@ -6,8 +6,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from ok import Box
-from ok.feature.FeatureSet import FeatureSet
+from Mon import Box
+from Mon.feature.FeatureSet import FeatureSet
 
 from src.char.BaseChar import CharType
 from src.char.Roccia import Roccia

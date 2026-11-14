@@ -1,7 +1,7 @@
 import win32api
 
-from ok import PostMessageInteraction
-from ok.task.exceptions import TaskDisabledException, WaitFailedException
+from Mon import PostMessageInteraction
+from Mon.task.exceptions import TaskDisabledException, WaitFailedException
 
 from src.task.BaseWWTask import LOGIN_TEXTS
 from src.task.MouseResetTask import MouseResetTask

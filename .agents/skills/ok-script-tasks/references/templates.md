@@ -1,11 +1,11 @@
-# ok-script Task Templates
+# Mon-script Task Templates
 
 ## Minimal One-Time Task
 
 Use for a user-started workflow that should run to completion.
 
 ```python
-from ok import BaseTask, Logger
+from Mon import BaseTask, Logger
 
 logger = Logger.get_logger(__name__)
 
@@ -41,7 +41,7 @@ class ClaimRewardTask(BaseTask):
 Use for a background task that checks for a condition while enabled.
 
 ```python
-from ok import TriggerTask
+from Mon import TriggerTask
 
 
 class AutoClosePopupTask(TriggerTask):
@@ -74,7 +74,7 @@ If inheriting a project base class, place `TriggerTask` before or after the proj
 Use project feature names from the target app's template matching data.
 
 ```python
-from ok import BaseTask
+from Mon import BaseTask
 
 
 class ClickFeatureTask(BaseTask):
@@ -135,7 +135,7 @@ config = {
 For an app with `custom_tasks` enabled, create one top-level task class in `ok_tasks/my_task.py`:
 
 ```python
-from ok import BaseTask
+from Mon import BaseTask
 
 
 class MyCustomTask(BaseTask):
@@ -153,7 +153,7 @@ The loader scans top-level classes and instantiates the first subclass of `BaseT
 ## Validation Checklist
 
 - Import succeeds with the target project's interpreter.
-- Class can be instantiated by ok-script with `executor` and `app` keyword args.
+- Class can be instantiated by Mon-script with `executor` and `app` keyword args.
 - `super().__init__` runs before task metadata changes.
 - Every user-editable setting appears in `default_config`.
 - Every `config_type` key also exists in `default_config`.

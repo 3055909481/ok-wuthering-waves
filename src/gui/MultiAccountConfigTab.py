@@ -9,16 +9,16 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
-from ok import og, Icon
-from ok.ui.qt.kit.buttons import Button
-from ok.ui.qt.kit.cards import Card, SettingRow
-from ok.ui.qt.kit.feedback import show_toast
-from ok.ui.qt.kit.inputs import ComboBox
-from ok.ui.qt.kit.switch import Switch
-from ok.ui.qt.tasks.config_form import ConfigForm
-from ok.ui.qt.shell.run_bar import format_elapsed
-from ok.ui.qt.widget.CustomTab import CustomTab
-from ok.ui.qt.widget.UpdateConfigWidgetItem import value_to_string
+from Mon import og, Icon
+from Mon.ui.qt.kit.buttons import Button
+from Mon.ui.qt.kit.cards import Card, SettingRow
+from Mon.ui.qt.kit.feedback import show_toast
+from Mon.ui.qt.kit.inputs import ComboBox
+from Mon.ui.qt.kit.switch import Switch
+from Mon.ui.qt.tasks.config_form import ConfigForm
+from Mon.ui.qt.shell.run_bar import format_elapsed
+from Mon.ui.qt.widget.CustomTab import CustomTab
+from Mon.ui.qt.widget.UpdateConfigWidgetItem import value_to_string
 from src.task.MultiAccountConfigTask import MultiAccountConfigTask
 from src.task.account.MultiAccountConfigStore import (
     MultiAccountConfigStore, collect_available_tasks, display_account, task_reference,

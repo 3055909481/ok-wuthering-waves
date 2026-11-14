@@ -58,7 +58,7 @@ jobs:
       - name: Prepare release requirements
         env:
           RELEASE_TAG: ${{ github.ref_name }}
-        run: python -m ok.update.inline_ok_requirements --tag "$env:RELEASE_TAG"
+        run: python -m Mon.update.inline_ok_requirements --tag "$env:RELEASE_TAG"
 
       - name: Run tests
         timeout-minutes: 20
@@ -140,7 +140,7 @@ jobs:
       - name: Prepare release requirements
         env:
           RELEASE_TAG: ${{ github.ref_name }}
-        run: python -m ok.update.inline_ok_requirements --tag "$env:RELEASE_TAG"
+        run: python -m Mon.update.inline_ok_requirements --tag "$env:RELEASE_TAG"
 
       - name: Check release version
         id: release_version
@@ -205,7 +205,7 @@ jobs:
       - name: Prepare release requirements
         env:
           RELEASE_TAG: ${{ github.ref_name }}
-        run: python -m ok.update.inline_ok_requirements --tag "$env:RELEASE_TAG"
+        run: python -m Mon.update.inline_ok_requirements --tag "$env:RELEASE_TAG"
 
       - name: Reuse base executable
         id: reuse_executable

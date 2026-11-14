@@ -2,7 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from ok import TaskDisabledException
+from Mon import TaskDisabledException
 from src.char.Suoming import Suoming
 from src.task.BaseCombatTask import NotInCombatException
 

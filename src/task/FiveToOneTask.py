@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 import re
-from ok import find_boxes_by_name, find_boxes_within_boundary, Logger
+from Mon import find_boxes_by_name, find_boxes_within_boundary, Logger
 from src.task.BaseCombatTask import BaseCombatTask
 from src.task.task_icons import task_icon
 
