@@ -130,10 +130,12 @@ git_url: "https://github.com/3055909481/ok-wuthering-waves.git"
 | --- | --- |
 | 分发名 | `Mon-script` |
 | Python 顶层模块 | `Mon`（源码中 `from ok import ...` 已全部改为 `from Mon import ...`） |
-| 安装来源 | `Mon-script[ocr,qt] @ git+https://github.com/3055909481/Mon-script.git@v3.0.5b7-mon1` |
+| 安装来源 | `Mon-script[ocr,qt] @ https://github.com/3055909481/Mon-script/archive/refs/tags/v3.0.5b7-mon1.tar.gz` |
 | 上游 | [ok-oldking/ok-script](https://github.com/ok-oldking/ok-script)，版本基线 `v3.0.5b7` |
 
-修改依赖时需同时更新 `pyproject.toml` 和 `requirements.txt`（后者是锁文件，PyAppify 打包时用 `--no-deps` 按它安装）。升级方法：在 Mon-script 仓库提交改动并打新 tag，再把这两个文件里的 tag 换成新值；fork 未发布到 PyPI，所以必须保留 `git+https://...` 形式。
+修改依赖时需同时更新 `pyproject.toml` 和 `requirements.txt`（后者是锁文件，PyAppify 打包时用 `--no-deps` 按它安装）。升级方法：在 Mon-script 仓库提交改动并打新 tag，再把这两个文件里的 tag 换成新值；fork 未发布到 PyPI，所以必须保留 tag 归档 URL 的形式。
+
+> **为什么不用 `git+https://...@tag`**：PyAppify v1.2.7 的 `clear_python_envs()` 会把 pip 子进程的 `PATH` 重置为仅 `C:\Windows\System32` 等系统目录，其中没有 `git.exe`。实测 git URL 在打包阶段报 `ERROR: Cannot find command 'git'` 并导致 setup 失败；GitHub 的 tag 归档包只需 HTTPS 下载，无需 git，且仍精确锁定同一个 tag。
 
 > **刻意保留的旧名**：gettext 翻译域仍是 `ok`（`i18n/*/LC_MESSAGES/ok.po` / `ok.mo`）、运行时对象属性仍是 `og.ok`、issue 日志解析脚本仍认 `logs/ok-script.log`。这些不是 Python 模块名，改动会破坏现有翻译文件和上游日志附件的解析。
 >
