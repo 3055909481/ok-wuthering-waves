@@ -308,6 +308,29 @@ jobs:
           add_version_name: true
           app_version: ${{ steps.version.outputs.tag }}
 
+      # PyAppify streams pip output into its own emitter instead of the job log,
+      # so a failed "setup" only reports "exit code 1". Surface the real error.
+      - name: Diagnose PyAppify setup failure
+        if: failure()
+        run: |
+          Write-Host '=== PyAppify / launcher logs ==='
+          Get-ChildItem -Path pyappify_dist -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -in @('.log', '.txt') } |
+            ForEach-Object {
+              Write-Host "--- $($_.FullName) ---"
+              Get-Content -LiteralPath $_.FullName -Tail 60 -ErrorAction SilentlyContinue
+            }
+          $py = Join-Path (Get-Location) 'pyappify_dist/Monster/data/apps/Monster/python/python.exe'
+          $req = Join-Path (Get-Location) 'pyappify_dist/Monster/data/apps/Monster/working/requirements.txt'
+          Write-Host "bundled python exists: $(Test-Path $py)"
+          Write-Host "bundled requirements exists: $(Test-Path $req)"
+          if (Test-Path $py) {
+            Write-Host '=== Rerun the Mon-script requirement with visible output ==='
+            & $py -m pip install --no-warn-script-location --no-deps "Mon-script[ocr,qt] @ git+https://github.com/3055909481/Mon-script.git@v3.0.5b7-mon1" 2>&1 |
+              ForEach-Object { Write-Host $_ }
+            Write-Host "pip exit code: $LASTEXITCODE"
+          }
+
       # updater mode: pyappify-action always emits a launcher-only zip alongside
       # the package. Extract the REAL Tauri launcher and stage it at the same
       # path the wrapper uses, so the embed step below is mode-agnostic. This
