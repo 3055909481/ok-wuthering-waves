@@ -1,8 +1,17 @@
 name: "Monster"
 icon: "icons/icon.png"
+# Launcher keeps only the newest release tag, so both the bundled clone and
+# every later fetch stay small: an update transfers only the changed objects
+# of the new tag, never the ~2 GiB Python environment bundled in the archive.
 keep_releases: 1
 profiles:
   - name: "Portable"
+    # UPDATE SOURCE. This is our own fork, i.e. the tags published by the
+    # "Monster Portable Release" workflow. The launcher (Monster.exe) fetches
+    # new versions from here. Change this URL to point updates at another
+    # repository you publish; that repo must carry the same version tags with
+    # the runnable source files (main.py, config.py, src/, pyappify.yml, ...).
+    # It must NOT point at ok-oldking's update repositories.
     git_url: "https://github.com/3055909481/ok-wuthering-waves.git"
     admin: true
     main_script: "main.py"

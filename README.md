@@ -73,6 +73,55 @@
 
 ---
 
+## 📦 发行包与更新（Monster Portable Release）
+
+本 fork 的发行包由手动触发的 `Monster Portable Release` 工作流构建，只产出**便携压缩包**：没有安装程序，也没有在线安装包。GitHub Actions → 该工作流 → Run workflow 即可触发。
+
+解压后目录结构：
+
+```
+Monster/
+├── Monster.exe                    # 启动器
+├── Monster.cmd                    # 命令行 / 离线启动入口
+└── data/apps/Monster/
+    ├── python/                    # 内置 Python 3.12 与全部依赖
+    ├── app.json                   # 版本、profile、更新源
+    ├── repo/                      # 精简过的 git 仓库（只保留版本 tag）
+    └── working/                   # 程序源码；configs/、logs/ 由程序自己创建
+```
+
+### 两种启动器模式
+
+触发工作流时可通过 `launcher` 选择：
+
+| 模式 | `Monster.exe` | 更新方式 | 配置 |
+| --- | --- | --- | --- |
+| `updater`（默认） | PyAppify 官方启动器，也就是原项目那个「启动 + 更新」程序 | 启动时从更新源 fetch 新版本 tag 的**差异对象**，只下载变化的源码 | 保留 |
+| `cmd-only` | 带图标和管理员权限清单的轻量包装器，只调用 `Monster.cmd` | 无更新 / 无联网逻辑 | 需手动迁移 |
+
+`updater` 模式解决了旧便携包的两个问题：
+
+1. **不用再重下 2 GiB**：Python 环境、pip 依赖、`ok_templates/` 模板等都不在更新源仓库里，更新时启动器只把新 tag 中变化的文件 checkout 到 `data/apps/Monster/working`，并复用已有的 `data/apps/Monster/python/`。首次解压仍然需要完整包，之后每次更新通常只有几 MB 到几十 MB。
+2. **配置不再失效**：`configs/`、`logs/` 等由程序运行时生成且被 `.gitignore` 排除，`checkout` 只覆盖受版本控制的文件，不会删除用户数据。恢复的队伍配置页（`src/gui/CharacterCodeTab.py`）也已纳入版本控制，更新后依然可用。
+
+> `Monster.cmd` 设置了 `PYAPPIFY_UPGRADEABLE=0`，适合带命令行参数启动或完全离线使用；它不会触发更新。要更新请双击 `Monster.exe`。
+>
+> `updater` 模式的启动器界面依赖系统 WebView2 Runtime（Windows 11 与多数已更新的 Windows 10 自带）。若双击 `Monster.exe` 无界面，安装微软的 [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) 常青版即可；`Monster.cmd` 不依赖它。
+
+### 更新源指向自己发布的版本
+
+更新源由 `pyappify.yml` 的 `profiles[].git_url` 决定，当前指向**本 fork 自己发布的仓库**：
+
+```yaml
+git_url: "https://github.com/3055909481/ok-wuthering-waves.git"
+```
+
+工作流每次运行都会在这个仓库上创建并推送一个新的版本 tag，启动器检查更新时拉取的正是这些自己发布的 tag，不会再去原作者的更新仓库。想换成另一个由你发布的仓库，把上面这行改成那个仓库地址并提交即可；该仓库需要有同名的版本 tag，且其中的 `pyappify.yml` 也要把 `git_url` 指回自己（工作流也提供 `update_repo` 输入用于构建时临时覆盖，但必须配合手动指定的 `version` 使用）。
+
+> 压缩包约 2.2 GiB，超过 GitHub 单个 Release 资产 2 GiB 上限，因此 Release 里是 `.7z.001` / `.7z.002` 分卷：下载全部放到同一目录，用 7-Zip 打开第一个即可解压。完整单文件包也可在对应 Actions 运行的 artifact 中下载。
+
+---
+
 ## 💻 开发者专区
 
 ### 从源码运行

@@ -7,11 +7,17 @@
 #   * MirrorChyan / release-note distribution.
 # The only published artifact is a self-contained portable archive.
 #
-# pyappify-action always emits a launcher-only "<App>-win32.zip" and a sha256
-# file next to the portable archive, so the collect step filters those out.
-# Because package_zip mode ships Monster.cmd instead of that Tauri updater,
-# this workflow compiles a tiny icon-only Monster.exe wrapper and embeds it in
-# the archive next to the .cmd. It has no update or network logic of its own.
+# Updating WITHOUT re-downloading the ~2 GiB archive:
+#   pyappify-action always emits a launcher-only "<App>-win32.zip" next to the
+#   portable archive. That zip contains PyAppify's real Tauri launcher. In
+#   "updater" mode this workflow extracts it and puts it back into the archive
+#   as Monster/Monster.exe. The launcher reads data/apps/Monster/app.json,
+#   fetches only NEW release tags from pyappify.yml's git_url (our own fork),
+#   and checks them out into data/apps/Monster/working. Python, pip packages,
+#   bundled templates and configs/ are NOT tracked by that repository, so they
+#   survive every update. Only changed source files are transferred.
+#   In "cmd-only" mode a tiny icon-only exe wrapper is shipped instead, with no
+#   network/update logic at all, for users who prefer a fully offline package.
 
 name: Monster Portable Release
 run-name: Monster portable · ${{ inputs.version || format('auto run {0}', github.run_number) }}
@@ -32,6 +38,19 @@ on:
         options:
           - 7z
           - zip
+      launcher:
+        description: 'updater = ship PyAppify''s real launcher (incremental updates, configs/ preserved, needs network for updates). cmd-only = ship the offline icon-only wrapper around Monster.cmd, no update logic.'
+        required: true
+        default: 'updater'
+        type: choice
+        options:
+          - updater
+          - cmd-only
+      update_repo:
+        description: 'UPDATE SOURCE: git URL the launcher pulls new versions from. Leave empty to use this fork (your own published release tags). For another repository, enter a version tag manually in "version" and publish the SAME tag there first, with runnable source files and a pyappify.yml whose git_url points back to that repo.'
+        required: false
+        default: ''
+        type: string
       publish_release:
         description: 'Also create a GitHub Release with the archive. When off, only the Actions artifact is uploaded.'
         required: false
@@ -188,15 +207,47 @@ jobs:
             Write-Host "Created and pushed tag $env:TAG."
           }
 
+      - name: Validate custom update repository
+        if: ${{ inputs.update_repo != '' }}
+        env:
+          CUSTOM_UPDATE_REPO: ${{ inputs.update_repo }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          # PyAppify clones git_url during setup and checks out --setup-version.
+          # A custom update source therefore has to carry the build tag before
+          # packaging starts; otherwise the build fails 20 minutes later with
+          # "Setup version ... is no longer available".
+          $url = "$env:CUSTOM_UPDATE_REPO".Trim()
+          if ($url -notmatch '^https://') { throw "update_repo must be an https git URL, got '$url'." }
+          $found = (& git ls-remote --tags $url "refs/tags/$env:TAG" | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "Cannot read tags from custom update repo $url." }
+          if (-not $found) {
+            throw "Custom update repo $url has no tag $env:TAG. Publish this tag (with main.py, config.py, src/, pyappify.yml, ...) there first, or leave update_repo empty to use this fork."
+          }
+          Write-Host "Custom update repo $url already carries tag $env:TAG."
+
       - name: Write portable-only PyAppify config
         env:
           APP_REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+          CUSTOM_UPDATE_REPO: ${{ inputs.update_repo }}
         run: |
-          # Keep this identical to the committed pyappify.yml. At the end of
-          # setup PyAppify reloads the CHECKED-OUT repository's pyappify.yml
-          # and uses its profiles to sync tags; if that copy still pointed at
-          # the upstream update repos, the build tag got pruned and setup died
-          # with "Setup version ... is no longer available".
+          # git_url is the UPDATE SOURCE. By default it is this fork: every tag
+          # created above is one of OUR OWN published releases, so the launcher
+          # never talks to ok-oldking's update repositories. keep_releases: 1
+          # makes both the bundled clone and later fetches shallow, so an update
+          # transfers only the new tag's changed objects, not the Python env.
+          $repoUrl = $env:APP_REPO_URL
+          if (-not [string]::IsNullOrWhiteSpace($env:CUSTOM_UPDATE_REPO)) {
+            $repoUrl = "$env:CUSTOM_UPDATE_REPO".Trim()
+          }
+          Write-Host "Launcher update source (git_url): $repoUrl"
+
+          # Keep the profile values identical to the committed pyappify.yml.
+          # At the end of setup PyAppify reloads the CHECKED-OUT repository's
+          # pyappify.yml (the one from git_url) and uses its profiles to sync
+          # tags. Both copies must point at the same update source, or the build
+          # tag gets pruned and setup dies with "Setup version ... is no longer
+          # available". That is why upstream's update repos were replaced here.
           $lines = @(
             'name: "Monster"'
             'icon: "icons/icon.png"'
@@ -206,7 +257,7 @@ jobs:
             'keep_releases: 1'
             'profiles:'
             '  - name: "Portable"'
-            ('    git_url: "' + $env:APP_REPO_URL + '"')
+            ('    git_url: "' + $repoUrl + '"')
             '    admin: true'
             '    main_script: "main.py"'
             '    requires_python: "3.12"'
@@ -218,13 +269,14 @@ jobs:
           [System.IO.File]::WriteAllLines($target, $lines, (New-Object System.Text.UTF8Encoding($false)))
           Get-Content $target
 
-      # package_zip mode deliberately ships Monster.cmd instead of PyAppify's
-      # Tauri launcher: a portable build has no online updater. A .cmd has no
-      # icon and cannot be pinned nicely, so compile a tiny Win32 GUI wrapper
-      # that only invokes Monster.cmd (all update / environment logic stays in
-      # PyAppify's script). Compile before packaging: it only needs tracked
+      # cmd-only mode: package_zip ships Monster.cmd instead of PyAppify's
+      # Tauri launcher. A .cmd has no icon and cannot be pinned nicely, so
+      # compile a tiny Win32 GUI wrapper that only invokes Monster.cmd. It has
+      # no update/network logic. Compile before packaging: it only needs tracked
       # assets, so a compiler problem fails fast instead of after a 20 min build.
-      - name: Build lightweight Monster.exe launcher
+      # updater mode skips this and uses the real launcher extracted later.
+      - name: Build offline icon-only Monster.exe wrapper
+        if: ${{ inputs.launcher == 'cmd-only' }}
         run: |
           $compiler = @(
             (Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe')
@@ -256,6 +308,36 @@ jobs:
           add_version_name: true
           app_version: ${{ steps.version.outputs.tag }}
 
+      # updater mode: pyappify-action always emits a launcher-only zip alongside
+      # the package. Extract the REAL Tauri launcher and stage it at the same
+      # path the wrapper uses, so the embed step below is mode-agnostic. This
+      # exe is the "startup + update program" from the original project: it
+      # reads data/apps/Monster/app.json, fetches new tags from git_url and
+      # checks them out into working/, keeping configs/ and the Python env.
+      - name: Extract PyAppify updater launcher
+        if: ${{ inputs.launcher == 'updater' }}
+        run: |
+          $zip = Join-Path (Get-Location) 'pyappify_dist/Monster-win32.zip'
+          if (-not (Test-Path $zip)) {
+            Write-Host 'pyappify_dist contents:'
+            Get-ChildItem -Path pyappify_dist -File | ForEach-Object { Write-Host $_.Name }
+            throw "Launcher-only zip $zip was not produced by pyappify-action."
+          }
+          $extract = Join-Path (Get-Location) 'launcher_extract'
+          New-Item -ItemType Directory -Path $extract -Force | Out-Null
+          Expand-Archive -LiteralPath $zip -DestinationPath $extract -Force
+          $exe = Join-Path $extract 'Monster/Monster.exe'
+          if (-not (Test-Path $exe)) { throw "Monster/Monster.exe not found inside $zip." }
+          $size = (Get-Item -LiteralPath $exe).Length
+          # The offline icon-only wrapper is ~100 KB; the Tauri launcher is MBs.
+          if ($size -lt 1MB) { throw "Extracted launcher is only $size bytes; expected PyAppify's Tauri binary." }
+          $outDir = Join-Path (Get-Location) 'launcher'
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+          Copy-Item -LiteralPath $exe -Destination (Join-Path $outDir 'Monster.exe') -Force
+          Write-Host ("Using PyAppify updater launcher ({0} bytes)" -f $size)
+
+      # Whichever mode was selected, launcher/Monster.exe now holds the binary
+      # to place next to Monster.cmd inside Monster/.
       - name: Embed Monster.exe in the portable archive
         env:
           PACKAGE_FORMAT: ${{ inputs.package_format }}
@@ -318,6 +400,9 @@ jobs:
         env:
           PACKAGE_FORMAT: ${{ inputs.package_format }}
           VERSION_TAG: ${{ steps.version.outputs.tag }}
+          LAUNCHER_MODE: ${{ inputs.launcher }}
+          APP_REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+          CUSTOM_UPDATE_REPO: ${{ inputs.update_repo }}
         run: |
           New-Item -ItemType Directory -Path release_assets -Force | Out-Null
           $pattern = "Monster-win32-Portable-*.$env:PACKAGE_FORMAT"
@@ -352,18 +437,45 @@ jobs:
           "sha256=$hash" >> $env:GITHUB_OUTPUT
           "release_ready=$releaseReady" >> $env:GITHUB_OUTPUT
           "largest_bytes=$largest" >> $env:GITHUB_OUTPUT
+
+          $repoUrl = $env:APP_REPO_URL
+          if (-not [string]::IsNullOrWhiteSpace($env:CUSTOM_UPDATE_REPO)) {
+            $repoUrl = "$env:CUSTOM_UPDATE_REPO".Trim()
+          }
+
+          # Keep this script pure ASCII: GitHub writes pwsh scripts as UTF-8
+          # without a BOM, and Windows PowerShell 5.1 would otherwise decode
+          # non-ASCII text as the local ANSI codepage. The Chinese release
+          # notes live in YAML below, where GitHub handles the encoding.
+          if ($env:LAUNCHER_MODE -eq 'updater') {
+            $launcherSummary = @(
+              ''
+              'Launcher: PyAppify Tauri updater (Monster/Monster.exe).'
+              "Update source (pyappify.yml git_url): $repoUrl"
+              'Updates fetch only the new tag''s changed git objects into data/apps/Monster/working; the Python env, pip packages, templates and configs/ are not tracked there and survive intact.'
+              'The first download is the full archive; later updates transfer only changed source files.'
+              'Monster/Monster.cmd remains available for command-line or fully offline starts (it sets PYAPPIFY_UPGRADEABLE=0).'
+            )
+          } else {
+            $launcherSummary = @(
+              ''
+              'Launcher: offline icon-only wrapper around Monster.cmd, no update or network logic.'
+              'Re-run this workflow with launcher=updater to get incremental updates.'
+            )
+          }
+
           $summary = @(
-            '## Monster portable package'
+            "## Monster portable package ($env:LAUNCHER_MODE)"
             ''
             "- Archive: $($files[0].Name) ($sizeMB MB)"
             "- SHA256: $hash"
             "- Version tag: $env:VERSION_TAG"
+            "- Update source: $repoUrl"
             ''
             'Only the portable archive is published; PyAppify''s launcher-only zip, hash file and any installer are discarded.'
             'Extract (7z needs 7-Zip or Windows 11 23H2+) and double-click Monster/Monster.exe; Monster/Monster.cmd remains available for command-line arguments.'
-            'Monster.exe is only an icon + UAC wrapper around Monster.cmd: no updater, no installer, no online download. Python and all dependencies are bundled.'
             'The app ships ok_templates/ images with long file names; extract with 7-Zip / WinRAR into a short folder (e.g. C:\Monster) if Windows Explorer reports a long-path error.'
-          )
+          ) + $launcherSummary
           if ($releaseReady -eq 'false') {
             $summary += @(
               ''
@@ -484,17 +596,23 @@ jobs:
           name: Monster ${{ steps.version.outputs.number }} (portable)
           draft: false
           prerelease: false
+          # Chinese text stays in YAML (GitHub handles UTF-8 here); the two
+          # expressions keep the notes in sync with the selected mode / source.
           body: |
             ### Monster 便携版
 
-            仅提供便携压缩包，解压后双击 `Monster/Monster.exe` 即可启动；需要命令行参数时可运行 `Monster/Monster.cmd`。
+            解压后双击 `Monster/Monster.exe` 启动；需要命令行参数或完全离线启动时可运行 `Monster/Monster.cmd`。
 
-            - `Monster.exe` 只是带图标和管理员权限清单的轻量启动器，直接调用同目录的 `Monster.cmd`，不含在线更新、安装或联网逻辑
-            - 默认 7z 格式，可用 7-Zip 或 Windows 11 23H2+ 解压
-            - 若资产为 `.7z.001`、`.7z.002` 等分卷：请下载全部分卷放在同一目录，用 7-Zip 打开第一个（`.001`）解压即可，无需手动合并
-            - 不含安装程序，不含在线安装包
-            - Python 环境与依赖已随包提供，运行时无需联网下载
-            - 包内 `ok_templates/` 含长文件名，建议使用 7-Zip / WinRAR 解压到较短目录（如 `C:\Monster`）
+            - 本次启动器模式：`${{ inputs.launcher }}`
+            - 更新源（`pyappify.yml` 的 `git_url`）：`${{ inputs.update_repo || format('{0}/{1}.git', github.server_url, github.repository) }}`
+            - `updater` 模式：`Monster.exe` 是 PyAppify 官方启动器，也就是原项目那个「启动 + 更新」程序。它只从上面的更新源 fetch 新版本 tag 的差异对象，再 checkout 到 `data/apps/Monster/working`；Python 环境、pip 依赖、模板资源和 `configs/` 都不在这个仓库里，因此不会被重新下载或覆盖。首次仍需完整包，之后每次更新只传变化的源码文件，用户配置与队伍配置全部保留
+            - `cmd-only` 模式：`Monster.exe` 只是带图标和管理员权限清单的轻量包装器，不含更新或联网逻辑
+            - `Monster.cmd` 设置了 `PYAPPIFY_UPGRADEABLE=0`，适合命令行参数或完全离线启动
+            - 仅提供便携压缩包，不含安装程序，也不含在线安装包
+            - 默认 7z 格式，请用 7-Zip 或 Windows 11 23H2+ 解压
+            - 若资产为 `.7z.001`、`.7z.002` 等分卷：把全部分卷下载到同一目录，用 7-Zip 打开第一个（`.001`）解压即可，无需手动合并
+            - Python 环境与依赖已随包提供，首次运行无需联网下载
+            - 包内 `ok_templates/` 含长文件名，建议用 7-Zip / WinRAR 解压到较短目录（如 `C:\Monster`）
             - 由手动触发的 `Monster Portable Release` 工作流构建
           files: ${{ steps.release.outputs.pattern }}
         env:
