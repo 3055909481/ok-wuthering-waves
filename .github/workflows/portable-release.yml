@@ -18,6 +18,14 @@
 #   survive every update. Only changed source files are transferred.
 #   In "cmd-only" mode a tiny icon-only exe wrapper is shipped instead, with no
 #   network/update logic at all, for users who prefer a fully offline package.
+#
+#   BOTH entry points must run elevated. PyAppify v1.2.7 builds the Tauri
+#   launcher with UAC disabled (src-tauri/build.rs: "const UAC: bool = false"),
+#   so an unpatched Monster.exe runs pythonw at MEDIUM integrity while Wuthering
+#   Waves runs at HIGH. UIPI then blocks PostMessage with Win32 error 5
+#   ("Access is denied") and the script cannot click or press keys. Monster.cmd
+#   already self-elevates via fltmc + RunAs; the "Require administrator for the
+#   updater launcher" step patches the extracted exe's RT_MANIFEST the same way.
 
 name: Monster Portable Release
 run-name: Monster portable · ${{ inputs.version || format('auto run {0}', github.run_number) }}
@@ -358,6 +366,33 @@ jobs:
           Copy-Item -LiteralPath $exe -Destination (Join-Path $outDir 'Monster.exe') -Force
           Write-Host ("Using PyAppify updater launcher ({0} bytes)" -f $size)
 
+      # PyAppify's embedded manifest has no trustInfo, i.e. asInvoker. Launching
+      # Monster.exe directly then leaves pythonw at MEDIUM integrity and every
+      # PostMessage to the elevated game window fails with Win32 error 5 (UIPI).
+      # Patch RT_MANIFEST/1 so double-clicking the launcher requests elevation
+      # once, and the whole process tree (launcher -> pythonw) is HIGH.
+      - name: Require administrator for the updater launcher
+        if: ${{ inputs.launcher == 'updater' }}
+        run: |
+          $script = Join-Path (Get-Location) '.github/scripts/patch_launcher_manifest.py'
+          $manifest = Join-Path (Get-Location) '.github/scripts/MonsterUpdater.manifest.xml'
+          foreach ($asset in @($script, $manifest)) {
+            if (-not (Test-Path $asset)) { throw "Launcher asset missing: $asset" }
+          }
+          $exe = Join-Path (Get-Location) 'launcher/Monster.exe'
+          if (-not (Test-Path $exe)) { throw 'Extracted updater launcher is missing.' }
+          # ctypes calls the Win32 resource-update APIs directly; no compiler
+          # is needed. The runner has python on PATH, and the Python that
+          # pyappify-action just bundled is a guaranteed fallback.
+          $py = (Get-Command python -ErrorAction SilentlyContinue).Source
+          if (-not $py) {
+            $py = Join-Path (Get-Location) 'pyappify_dist/Monster/data/apps/Monster/python/python.exe'
+          }
+          if (-not $py -or -not (Test-Path $py)) { throw 'No Python interpreter is available to patch the launcher manifest.' }
+          & $py $script $exe $manifest
+          if ($LASTEXITCODE -ne 0) { throw "Patching the launcher manifest failed (exit $LASTEXITCODE)." }
+          Write-Host ("Patched launcher requires administrator ({0} bytes)" -f (Get-Item -LiteralPath $exe).Length)
+
       # Whichever mode was selected, launcher/Monster.exe now holds the binary
       # to place next to Monster.cmd inside Monster/.
       - name: Embed Monster.exe in the portable archive
@@ -496,6 +531,7 @@ jobs:
             ''
             'Only the portable archive is published; PyAppify''s launcher-only zip, hash file and any installer are discarded.'
             'Extract (7z needs 7-Zip or Windows 11 23H2+) and double-click Monster/Monster.exe; Monster/Monster.cmd remains available for command-line arguments.'
+            'Both entry points request administrator rights. The game runs elevated, so a non-elevated script gets Win32 error 5 (Access is denied) on every PostMessage and cannot click or press keys.'
             'The app ships ok_templates/ images with long file names; extract with 7-Zip / WinRAR into a short folder (e.g. C:\Monster) if Windows Explorer reports a long-path error.'
           ) + $launcherSummary
           if ($releaseReady -eq 'false') {
@@ -625,6 +661,7 @@ jobs:
 
             解压后双击 `Monster/Monster.exe` 启动；需要命令行参数或完全离线启动时可运行 `Monster/Monster.cmd`。
 
+            - **必须以管理员权限运行**：`Monster.exe` 已内置 `requireAdministrator` 清单，双击会弹出一次 UAC 提权；`Monster.cmd` 通过 `fltmc` 自提权。鸣潮客户端本身是管理员权限，脚本若以普通权限启动，`PostMessage` 会被 UIPI 拦截并报 `(5, 'PostMessage', '拒绝访问。')`，表现为点击、按键完全无反应
             - 本次启动器模式：`${{ inputs.launcher }}`
             - 更新源（`pyappify.yml` 的 `git_url`）：`${{ inputs.update_repo || format('{0}/{1}.git', github.server_url, github.repository) }}`
             - `updater` 模式：`Monster.exe` 是 PyAppify 官方启动器，也就是原项目那个「启动 + 更新」程序。它只从上面的更新源 fetch 新版本 tag 的差异对象，再 checkout 到 `data/apps/Monster/working`；Python 环境、pip 依赖、模板资源和 `configs/` 都不在这个仓库里，因此不会被重新下载或覆盖。首次仍需完整包，之后每次更新只传变化的源码文件，用户配置与队伍配置全部保留
